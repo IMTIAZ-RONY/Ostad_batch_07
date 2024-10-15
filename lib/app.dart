@@ -13,7 +13,7 @@ class CrudApp extends StatelessWidget {
       builder:(BuildContext context,Widget?child)=>
        MaterialApp(
         debugShowCheckedModeBanner: false,
-        home:ProductListScreen() ,
+        home:const ProductListScreen() ,
         theme:ThemeData(
           brightness:Brightness.light ,
           colorScheme:ColorScheme.fromSeed(seedColor: Colors.deepPurpleAccent),
