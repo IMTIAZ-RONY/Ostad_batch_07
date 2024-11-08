@@ -30,6 +30,7 @@ class _TaskManagerAppState extends State<TaskManagerApp> {
         inputDecorationTheme: _inputDecorationTheme(),
         elevatedButtonTheme: _elevatedButtonThemeData(),
       ),
+      themeMode:ThemeMode.system ,
       home: const SplashScreen(),
     );
   }
