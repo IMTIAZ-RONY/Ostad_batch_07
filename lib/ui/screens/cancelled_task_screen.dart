@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ostad_batch_07/data/models/network_response.dart';
-import 'package:ostad_batch_07/data/models/task_status_model.dart';
 import 'package:ostad_batch_07/data/services/network_caller.dart';
 import 'package:ostad_batch_07/data/utils/urls.dart';
 import 'package:ostad_batch_07/ui/widgets/centered_circular_progress_indicator.dart';
@@ -8,27 +7,28 @@ import 'package:ostad_batch_07/ui/widgets/show_snack_bar_message.dart';
 import '../../data/models/task_list_model.dart';
 import '../../data/models/task_model.dart';
 import '../../data/models/task_status_count_model.dart';
+import '../../data/models/task_status_model.dart';
 import '../widgets/task_card.dart';
 import '../widgets/task_summary_card.dart';
 import 'add_new_task_screen.dart';
 
-class NewTaskScreen extends StatefulWidget {
-  const NewTaskScreen({super.key});
+class CancelledTaskScreen extends StatefulWidget {
+  const CancelledTaskScreen({super.key});
 
   @override
-  State<NewTaskScreen> createState() => _NewTaskScreenState();
+  State<CancelledTaskScreen> createState() => _CancelledTaskScreenState();
 }
 
-class _NewTaskScreenState extends State<NewTaskScreen> {
-  bool _getNewTaskListInProgress = false;
+class _CancelledTaskScreenState extends State<CancelledTaskScreen> {
+  bool _getCancelledTaskListInProgress = false;
   bool _getTaskStatusCountListInProgress = false;
-  List<TaskModel> _newTaskList = [];
+  List<TaskModel> _cancelledTaskList = [];
   List<TaskStatusModel> _taskStatusCountList = [];
 
   @override
   void initState() {
     super.initState();
-    _getNewTaskList();
+    _getCancelledTaskList();
     _getTaskStatusCount();
   }
 
@@ -37,8 +37,8 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
     TextTheme textTheme = Theme.of(context).textTheme;
     return RefreshIndicator(
       onRefresh: ()async{
-        _getNewTaskList();
-        _getTaskStatusCount();
+        _getCancelledTaskList();
+        _getCancelledTaskList();
       },
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
@@ -53,15 +53,15 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              BuildSummarySection(),
+           BuildSummarySection(),
               Expanded(
                 child: Visibility(
-                  visible: !_getNewTaskListInProgress,
+                  visible: !_getCancelledTaskListInProgress,
                   replacement: const CenteredCircularProgressIndicator(),
                   child: ListView.separated(
-                    itemCount: _newTaskList.length,
+                    itemCount: _cancelledTaskList.length,
                     itemBuilder: (context, index) {
-                      return TaskCard(taskModel: _newTaskList[index], onRefreshList: _getNewTaskList,);
+                      return TaskCard(taskModel: _cancelledTaskList[index], onRefreshList: _getCancelledTaskList,);
                     },
                     separatorBuilder: (context, index) {
                       return const SizedBox(
@@ -84,26 +84,26 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
       MaterialPageRoute(builder: (_) => const AddNewTaskScreen()),
     );
     if (shouldRefresh == true) {
-      _getNewTaskList();
+      _getCancelledTaskList();
     }
   }
 
-  Future<void> _getNewTaskList() async {
-    _newTaskList.clear();
-    _getNewTaskListInProgress = true;
+  Future<void> _getCancelledTaskList() async {
+    _cancelledTaskList.clear();
+    _getCancelledTaskListInProgress = true;
     setState(() {});
     final NetworkResponse response =
-    await NetworkCaller.getRequest(url: Urls.getNewTaskList);
+    await NetworkCaller.getRequest(url: Urls.cancelledTaskList);
 
     if (response.isSuccess) {
       final TaskListModel taskListModel =
       TaskListModel.fromJson(response.responseData);
-      _newTaskList = taskListModel.taskList ?? [];
+      _cancelledTaskList = taskListModel.taskList ?? [];
     } else {
       if (!mounted) return;
       ShowSnackBarMessage(context, response.errorMessage, true);
     }
-    _getNewTaskListInProgress = false;
+    _getCancelledTaskListInProgress = false;
     setState(() {});
   }
   Future<void> _getTaskStatusCount() async {
@@ -147,10 +147,6 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
     return taskSummaryCardList;
 
   }
-
 }
-
-
-
 
 

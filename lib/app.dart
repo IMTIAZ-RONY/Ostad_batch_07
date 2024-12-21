@@ -1,73 +1,80 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ostad_batch_07/ui/screens/splash_screen.dart';
 import 'package:ostad_batch_07/ui/utils/app_colors.dart';
-class TaskManagerApp extends StatefulWidget {
-  const TaskManagerApp({super.key});
 
-  static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+class TaskManagersApp extends StatefulWidget {
+  const TaskManagersApp({super.key});
+  static GlobalKey<NavigatorState> navigatorKey= GlobalKey<NavigatorState>();
 
   @override
-  State<TaskManagerApp> createState() => _TaskManagerAppState();
+  State<TaskManagersApp> createState() => _TaskManagersAppState();
 }
 
-class _TaskManagerAppState extends State<TaskManagerApp> {
+class _TaskManagersAppState extends State<TaskManagersApp> {
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey:TaskManagersApp.navigatorKey ,
       debugShowCheckedModeBanner: false,
-      navigatorKey: TaskManagerApp.navigatorKey,
-      theme: ThemeData(
-        brightness:Brightness.light ,
-        colorSchemeSeed: AppColors.themeColor,
-        textTheme: const TextTheme(),
-        inputDecorationTheme: _inputDecorationTheme(),
-        elevatedButtonTheme: _elevatedButtonThemeData(),
-      ),
+      theme:ThemeData(
+        colorSchemeSeed:AppColors.themeColor ,
+        textTheme:const TextTheme(),
+        inputDecorationTheme:_buildInputDecorationTheme() ,
+        elevatedButtonTheme: _buildElevatedButtonThemeData(),
+        useMaterial3:true,
+    ),
       darkTheme:ThemeData(
-        brightness:Brightness.dark ,
-        colorSchemeSeed: AppColors.themeColor,
-        textTheme: const TextTheme(),
-        inputDecorationTheme: _inputDecorationTheme(),
-        elevatedButtonTheme: _elevatedButtonThemeData(),
-      ),
-      themeMode:ThemeMode.system ,
-      home: const SplashScreen(),
-    );
+        colorSchemeSeed:AppColors.themeColor ,
+        textTheme:const TextTheme(),
+        inputDecorationTheme:_buildInputDecorationTheme() ,
+        elevatedButtonTheme: _buildElevatedButtonThemeData(),
+        useMaterial3:true,
+
+      ) ,
+      themeMode:ThemeMode.system,
+      home:const SplashScreen(),
+
+        );
   }
 
-  ElevatedButtonThemeData _elevatedButtonThemeData() {
+  static ElevatedButtonThemeData _buildElevatedButtonThemeData() {
     return ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.themeColor,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        fixedSize: const Size.fromWidth(double.maxFinite),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
+      style:ElevatedButton.styleFrom(
+        backgroundColor:AppColors.themeColor,
+        foregroundColor:Colors.white,
+        fixedSize:const Size.fromWidth(double.maxFinite) ,
+        shape:RoundedRectangleBorder(
+          borderRadius:BorderRadius.circular(8) ,
+        ) ,
+      ) ,
     );
   }
 
-  InputDecorationTheme _inputDecorationTheme() {
+
+
+
+  static InputDecorationTheme _buildInputDecorationTheme() {
     return InputDecorationTheme(
-      fillColor: Colors.white,
-      filled: true,
-      hintStyle: const TextStyle(
-          fontWeight: FontWeight.w300
-      ),
-      border: _inputBorder(),
-      enabledBorder: _inputBorder(),
-      errorBorder: _inputBorder(),
-      focusedBorder: _inputBorder(),
+
+      alignLabelWithHint:true ,
+     fillColor:Colors.white,
+     filled: true,
+     hintStyle:const TextStyle(fontWeight:FontWeight.w300 ) ,
+     border:_outlineInputBorder(),
+     errorBorder:_outlineInputBorder() ,
+     enabledBorder:_outlineInputBorder() ,
+     focusedBorder: _outlineInputBorder(),
     );
   }
 
-  OutlineInputBorder _inputBorder() {
+ static OutlineInputBorder _outlineInputBorder() {
     return OutlineInputBorder(
-      borderSide: BorderSide.none,
-      borderRadius: BorderRadius.circular(8),
-    );
+   borderSide:BorderSide.none,
+   borderRadius:BorderRadius.circular(8) ,
+
+
+);
   }
 }
-

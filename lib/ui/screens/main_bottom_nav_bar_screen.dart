@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:ostad_batch_07/ui/screens/add_new_task_screen.dart';
+import 'package:ostad_batch_07/ui/screens/cancelled_task_screen.dart';
+import 'package:ostad_batch_07/ui/screens/completed_task_screen.dart';
+import 'package:ostad_batch_07/ui/screens/new_task_screen.dart';
 import 'package:ostad_batch_07/ui/screens/progress_task_screen.dart';
 import '../widgets/tm_app_bar.dart';
-import 'cancel_task_screen.dart';
-import 'completed_task_screen.dart';
-import 'new_task_screen.dart';
 
 class MainBottomNavBarScreen extends StatefulWidget {
   const MainBottomNavBarScreen({super.key});
@@ -14,43 +15,56 @@ class MainBottomNavBarScreen extends StatefulWidget {
 
 class _MainBottomNavBarScreenState extends State<MainBottomNavBarScreen> {
   int _selectedIndex = 0;
-  final List<Widget> _screens = const [
+  final List<Widget> _selectedScreen = const [
     NewTaskScreen(),
     CompletedTaskScreen(),
     CancelledTaskScreen(),
-    ProgressTaskScreen()
+    ProgressTaskScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
+    TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: const TMAppBar(),
-      body: _screens[_selectedIndex],
+      appBar:TMAppBar(),
+
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (int index) {
-          _selectedIndex = index;
-          setState(() {});
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.new_label),
-            label: 'New',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.check_box),
-            label: 'Completed',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.close),
-            label: 'Cancelled',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.access_time_outlined),
-            label: 'Progress',
-          )
-        ],
-      ),
+          selectedIndex: _selectedIndex,
+          onDestinationSelected: (int index) {
+            _selectedIndex = index;
+            setState(() {});
+          },
+          destinations: const [
+            NavigationDestination(
+                icon: Icon(
+                  Icons.new_label,
+                  size: 20,
+                ),
+                label: "New"),
+            NavigationDestination(
+                icon: Icon(
+                  Icons.check_box,
+                  size: 20,
+                ),
+                label: "Completed"),
+            NavigationDestination(
+                icon: Icon(
+                  Icons.close,
+                  size: 20,
+                ),
+                label: "Cancelled"),
+            NavigationDestination(
+                icon: Icon(
+                  Icons.access_time_outlined,
+                  size: 20,
+                ),
+                label: "InProgress"),
+          ]),
+      body: _selectedScreen[_selectedIndex],
     );
   }
+
+
 }
+
+

@@ -8,4 +8,5 @@ class TaskStatusModel {
     sId = json['_id'];
     sum = json['sum'];
   }
+
 }
