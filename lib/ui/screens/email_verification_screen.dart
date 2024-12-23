@@ -7,6 +7,7 @@ import 'package:ostad_batch_07/ui/utils/app_colors.dart';
 import 'package:ostad_batch_07/ui/widgets/screen_background.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
+  static const String name= "/EmailVerificationScreen";
   const EmailVerificationScreen({super.key});
 
   @override

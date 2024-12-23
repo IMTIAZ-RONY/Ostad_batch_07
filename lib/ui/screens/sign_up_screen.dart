@@ -11,6 +11,7 @@ import 'package:ostad_batch_07/ui/widgets/show_snack_bar_message.dart';
 import '../../data/utils/urls.dart';
 
 class SignUpScreen extends StatefulWidget {
+  static const String name='/SignUpScreen';
   const SignUpScreen({super.key});
 
   @override

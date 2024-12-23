@@ -7,7 +7,9 @@ import 'package:ostad_batch_07/ui/screens/progress_task_screen.dart';
 import '../widgets/tm_app_bar.dart';
 
 class MainBottomNavBarScreen extends StatefulWidget {
+  static const String name='/home';
   const MainBottomNavBarScreen({super.key});
+
 
   @override
   State<MainBottomNavBarScreen> createState() => _MainBottomNavBarScreenState();

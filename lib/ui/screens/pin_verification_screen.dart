@@ -9,6 +9,7 @@ import 'package:ostad_batch_07/ui/widgets/screen_background.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
 class PinVerificationScreen extends StatefulWidget {
+  static const String name= "/PinVerification";
   const PinVerificationScreen({super.key});
 
   @override

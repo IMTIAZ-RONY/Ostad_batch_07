@@ -1,5 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_common/get_reset.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:ostad_batch_07/ui/screens/pin_verification_screen.dart';
 import 'package:ostad_batch_07/ui/screens/sign_in_screen.dart';
 import 'package:ostad_batch_07/ui/screens/sign_up_screen.dart';
@@ -7,6 +10,7 @@ import 'package:ostad_batch_07/ui/utils/app_colors.dart';
 import 'package:ostad_batch_07/ui/widgets/screen_background.dart';
 
 class SetPasswordScreen extends StatefulWidget {
+  static const String name="/SetPasswordScreen";
   const SetPasswordScreen({super.key});
 
   @override
@@ -45,7 +49,7 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
                 const SizedBox(
                   height: 24,
                 ),
-                _buildSetPasswordlForm(),
+                _buildSetPassWordForm(),
                 const SizedBox(
                   height: 24,
                 ),
@@ -64,7 +68,7 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
     );
   }
 
-  Widget _buildSetPasswordlForm() {
+  Widget _buildSetPassWordForm() {
     return Column(
       children: [
         TextFormField(
@@ -129,10 +133,12 @@ class _SetPasswordScreenState extends State<SetPasswordScreen> {
   }
 
   void _onTapSignIn() {
-    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder:(_)=>const SignInScreen()), (_)=>false);
+    //Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder:(_)=>const SignInScreen()), (_)=>false);
+    Get.offAll(SignInScreen.name);
   }
 
   void _onTapNextButton() {
-    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder:(_)=>const SignInScreen()), (_)=>false);
+   // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder:(_)=>const SignInScreen()), (_)=>false);
+  Get.offAll(SignInScreen.name);
   }
 }

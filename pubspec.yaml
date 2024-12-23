@@ -43,6 +43,7 @@ dependencies:
   flutter_svg:
   pin_code_fields:
   image_picker:
+  get:
 
 
 

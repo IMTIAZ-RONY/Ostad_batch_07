@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ostad_batch_07/ui/screens/profile_screen.dart';
-
-import '../controllers/auth_controllers.dart';
+import '../../bussiness_logic/controllers/auth_controllers.dart';
 import '../screens/sign_in_screen.dart';
 import '../utils/app_colors.dart';
 
@@ -26,7 +25,7 @@ class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
       child: AppBar(
         backgroundColor: AppColors.themeColor,
         title: Row(children: [
-          CircleAvatar(
+          const CircleAvatar(
             backgroundColor: Colors.white,
             radius: 20,
           ),
@@ -53,7 +52,7 @@ class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
                 await AuthController.clearUserData();
                 Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: (_) => SignInScreen()),
+                    MaterialPageRoute(builder: (_) => const SignInScreen()),
                     (_) => false);
               },
               icon: const Icon(Icons.logout))

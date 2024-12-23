@@ -13,6 +13,7 @@ import '../widgets/task_summary_card.dart';
 import 'add_new_task_screen.dart';
 
 class CancelledTaskScreen extends StatefulWidget {
+  static const String name="/CancelledTaskScreen";
   const CancelledTaskScreen({super.key});
 
   @override

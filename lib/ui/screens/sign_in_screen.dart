@@ -1,9 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:ostad_batch_07/data/models/login_model.dart';
-import 'package:ostad_batch_07/data/models/network_response.dart';
-import 'package:ostad_batch_07/data/services/network_caller.dart';
-import 'package:ostad_batch_07/ui/controllers/auth_controllers.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:ostad_batch_07/ui/screens/email_verification_screen.dart';
 import 'package:ostad_batch_07/ui/screens/main_bottom_nav_bar_screen.dart';
 import 'package:ostad_batch_07/ui/screens/sign_up_screen.dart';
@@ -11,11 +9,12 @@ import 'package:ostad_batch_07/ui/utils/app_colors.dart';
 import 'package:ostad_batch_07/ui/widgets/centered_circular_progress_indicator.dart';
 import 'package:ostad_batch_07/ui/widgets/screen_background.dart';
 import 'package:ostad_batch_07/ui/widgets/show_snack_bar_message.dart';
-
-import '../../data/utils/urls.dart';
+import '../../bussiness_logic/controllers/sign_in_controller.dart';
 
 class SignInScreen extends StatefulWidget {
+  static const String name='/SignInScreen';
   const SignInScreen({super.key});
+
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
@@ -25,7 +24,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailTEController = TextEditingController();
   final TextEditingController _passwordTEController = TextEditingController();
-  bool _inProgress = false;
+  final SignInController signInController= Get.find<SignInController>();
 
   @override
   void dispose() {
@@ -141,16 +140,20 @@ class _SignInScreenState extends State<SignInScreen> {
           const SizedBox(
             height: 24,
           ),
-          Visibility(
-            visible: !_inProgress,
-            replacement: const CenteredCircularProgressIndicator(),
-            child: ElevatedButton(
-              onPressed: _onTapNextButton,
-              child: const Icon(
-                Icons.arrow_forward_ios,
-                size: 20,
-              ),
-            ),
+          GetBuilder<SignInController>(
+            builder: (controller) {
+              return Visibility(
+                visible: !controller.inProgress,
+                replacement: const CenteredCircularProgressIndicator(),
+                child: ElevatedButton(
+                  onPressed: _onTapNextButton,
+                  child: const Icon(
+                    Icons.arrow_forward_ios,
+                    size: 20,
+                  ),
+                ),
+              );
+            }
           ),
         ],
       ),
@@ -180,122 +183,37 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   void _onTapSignUp() {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (_) => const SignUpScreen()));
+    // Navigator.push(
+    //     context, MaterialPageRoute(builder: (_) => const SignUpScreen()));
+    Get.to(SignUpScreen.name);
   }
 
   void _onTapForgetPasswordButton() {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (_) => const EmailVerificationScreen()));
+    // Navigator.push(context,
+    //     MaterialPageRoute(builder: (_) => const EmailVerificationScreen()));
+    Get.to(EmailVerificationScreen.name);
   }
 
   void _onTapNextButton() {
     _signIn();
-
   }
 
-  /*Future<void> _signIn() async {
-    if (!mounted) return;
-    setState(() {
-      _inProgress = true;
-    });
-
-    Map<String, dynamic> requestBody = {
-      "email": _emailTEController.text.trim(),
-      "password": _passwordTEController.text,
-    };
-    try {
-      NetworkResponse response = await NetworkCaller.postRequest(
-        url: Urls.login,
-        body: requestBody,
-      );
-      if (!mounted) return;
-      setState(() {
-        _inProgress = false;
-      });
-      if (response.isSuccess) {
-        LoginModel loginModel=LoginModel.fromJson(response.responseData);
-        await AuthController.saveAccessToken(loginModel.token!);
-        await AuthController.saveUserData(loginModel.data!);
-        _clearTextFields();
-        if (!mounted) return;
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => const MainBottomNavBarScreen()),
-                (value) => false);
-        if (!mounted) return;
-        ShowSnackBarMessage(context, "Successfully login");
-        if (!mounted) return;
-      } else {
-        ShowSnackBarMessage(context, response.errorMessage, true);
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _inProgress = false;
-        });
-      }
-      ShowSnackBarMessage(context, "Something went wrong :$e", true);
-    }
-  }*/
   Future<void> _signIn() async {
-    if (!mounted) return;
-    setState(() {
-      _inProgress = true;
-    });
+    final bool? result = await signInController.signIn(
+      _emailTEController.text.trim(),
+      _passwordTEController.text,
+    );
 
-    Map<String, dynamic> requestBody = {
-      "email": _emailTEController.text.trim(),
-      "password": _passwordTEController.text,
-    };
-
-    try {
-      NetworkResponse response = await NetworkCaller.postRequest(
-        url: Urls.login,
-        body: requestBody,
-      );
-
-      if (!mounted) return;
-      setState(() {
-        _inProgress = false;
-      });
-
-      if (response.isSuccess) {
-        LoginModel loginModel = LoginModel.fromJson(response.responseData);
-
-        // Ensure token and user data are not null
-        if (loginModel.token != null && loginModel.data != null) {
-          await AuthController.saveAccessToken(loginModel.token!);
-          await AuthController.saveUserData(loginModel.data!);
-
-          _clearTextFields();
-
-          if (!mounted) return;
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => const MainBottomNavBarScreen()),
-                (value) => false,
-          );
-
-          if (!mounted) return;
-          ShowSnackBarMessage(context, "Successfully logged in");
-        } else {
-          ShowSnackBarMessage(context, "Invalid response from server", true);
-        }
-      } else {
-        ShowSnackBarMessage(context, response.errorMessage, true);
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _inProgress = false;
-        });
-      }
-      ShowSnackBarMessage(context, "Something went wrong: $e", true);
+    if (result == true) {
+      _clearTextFields();
+      Get.offAll(() => const MainBottomNavBarScreen());
+      ShowSnackBarMessage(context, "Successfully logged in");
+    } else {
+      ShowSnackBarMessage(context, signInController.errorMessage ?? "Login failed", true);
     }
   }
 
-  void _clearTextFields(){
+  void _clearTextFields() {
     _emailTEController.clear();
     _passwordTEController.clear();
   }

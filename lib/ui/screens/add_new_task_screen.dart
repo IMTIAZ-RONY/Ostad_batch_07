@@ -7,6 +7,7 @@ import 'package:ostad_batch_07/ui/widgets/tm_app_bar.dart';
 import '../../data/utils/urls.dart';
 
 class AddNewTaskScreen extends StatefulWidget {
+  static const String name="/AddNewTaskScreen";
   const AddNewTaskScreen({super.key});
 
   @override

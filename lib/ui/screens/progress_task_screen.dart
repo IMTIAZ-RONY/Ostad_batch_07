@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:ostad_batch_07/data/models/network_response.dart';
 import 'package:ostad_batch_07/data/services/network_caller.dart';
 import 'package:ostad_batch_07/data/utils/urls.dart';
@@ -13,6 +15,7 @@ import '../widgets/task_summary_card.dart';
 import 'add_new_task_screen.dart';
 
 class ProgressTaskScreen extends StatefulWidget {
+  static const String name="/ProgressTaskScreen";
   const ProgressTaskScreen({super.key});
 
   @override
@@ -53,7 +56,7 @@ class _ProgressTaskScreenState extends State<ProgressTaskScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-            BuildSummarySection(),
+            buildSummarySection(),
               Expanded(
                 child: Visibility(
                   visible: !_getProgressTaskListInProgress,
@@ -79,10 +82,8 @@ class _ProgressTaskScreenState extends State<ProgressTaskScreen> {
   }
 
   Future<void> _onTapAddFAB() async {
-    final bool? shouldRefresh = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const AddNewTaskScreen()),
-    );
+    final bool? shouldRefresh = await /* Navigator.push(context, MaterialPageRoute(builder: (_) => const AddNewTaskScreen()),);*/
+    Get.to(AddNewTaskScreen.name);
     if (shouldRefresh == true) {
       _getInProgressTaskList();
     }
@@ -122,11 +123,11 @@ class _ProgressTaskScreenState extends State<ProgressTaskScreen> {
       ShowSnackBarMessage(context, response.errorMessage, true);
     }
     _getTaskStatusCountListInProgress = false;
-    setState(() {});
+
   }
-  Widget BuildSummarySection() {
+  Widget buildSummarySection() {
     return Padding(
-      padding: EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8.0),
       child: Visibility(
         visible:!_getTaskStatusCountListInProgress   ,
         replacement: const CenteredCircularProgressIndicator(),
