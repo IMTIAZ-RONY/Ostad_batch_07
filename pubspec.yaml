@@ -41,9 +41,16 @@ dependencies:
   intl: ^0.19.0
   shared_preferences:
   flutter_svg:
+  file_picker:
+  flutter_image_compress:
   pin_code_fields:
   image_picker:
+  permission_handler:
   get:
+  get_storage:
+  socket_io_client:
+  socket_io:
+  uuid:
 
 
 
