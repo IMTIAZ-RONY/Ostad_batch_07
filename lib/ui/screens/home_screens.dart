@@ -46,7 +46,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ostad_batch_07/ui/screens/task_details_screen.dart';
-import '../../bussiness_logic/controllers/task_controllers.dart';
+import '../../business_logic/controllers/task_controllers.dart';
 import 'add_task_screen.dart';  // Import Add Task Screen
 
 class HomeScreen extends StatelessWidget {
@@ -64,17 +64,21 @@ class HomeScreen extends StatelessWidget {
           final task = controller.tasks[index];
 
           // 🗂️ ListTile for Each Task
-          return ListTile(
-            title: Text(task.title),
-            subtitle: Text(task.subtitle),
-            trailing: Icon(
-              task.isCompleted ? Icons.check_circle : Icons.circle,
-              color: task.isCompleted ? Colors.green : Colors.grey,
+          return Card(
+            color:Colors.greenAccent,
+            elevation:5 ,
+             child: ListTile(
+              title: Text(task.title),
+              subtitle: Text(task.subtitle),
+              trailing: Icon(
+                task.isCompleted ? Icons.check_circle : Icons.circle,
+                color: task.isCompleted ? Colors.green : Colors.grey,
+              ),
+              onTap: () {
+                // Navigate to Task Detail Screen when tapped
+                Get.to(() => TaskDetailScreen(task: task));
+              },
             ),
-            onTap: () {
-              // Navigate to Task Detail Screen when tapped
-              Get.to(() => TaskDetailScreen(task: task));
-            },
           );
         },
       )),
@@ -89,3 +93,4 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
