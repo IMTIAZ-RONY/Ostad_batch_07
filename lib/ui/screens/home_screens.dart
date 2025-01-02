@@ -57,7 +57,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Task Managers')),
+      appBar: AppBar(title: const Text('Getx')),
       body: Obx(() => ListView.builder(
         itemCount: controller.tasks.length,
         itemBuilder: (context, index) {
