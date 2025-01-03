@@ -12,7 +12,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-RxInt _count=0.obs;
+CounterController counterController=CounterController();
 
   @override
   Widget build(BuildContext context) {
@@ -20,24 +20,38 @@ RxInt _count=0.obs;
       appBar:AppBar(title: const Center(
           child: Text ("Advanced Get-X",style:TextStyle(fontSize:26 ) ,)) ,) ,
       body: Center(
-        child:Obx((){
-          return Text(
-            "Taka:$_count" ,
-          ) ;
-        }),
+        child:GetBuilder<CounterController>(
+          init:counterController ,
+            builder:(plus){
+              return Text(
+                "Taka:${plus.count}",style:const TextStyle(fontSize:30 ,color:Colors.greenAccent ,) ,
+              ) ;
+            } ),
 
         ),
-      floatingActionButton: FloatingActionButton(
 
-        onPressed:(){
-          _count++;
-          },
-        child: const Icon(Icons.add),
+      floatingActionButton: Stack(
+           children: [
+             Positioned(
+               bottom:80 ,
+                 right:16 ,
+                 child:FloatingActionButton(
+               heroTag:'Increment ',
+                 onPressed: counterController.increment,
+               child:const Icon(Icons.add) ,
+             )),
+             Positioned(
+               bottom: 16,
+               right: 16,
+                 child: FloatingActionButton(
+                  heroTag:"Decrement" ,
+                  onPressed:counterController.decre,
+                   child:const Icon(Icons.remove) ,)),
+
+               ],
+
       ),
       );
-
-
-
   }
 
 }
