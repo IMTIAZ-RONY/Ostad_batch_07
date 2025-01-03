@@ -36,9 +36,9 @@ CounterController counterController=CounterController();
                bottom:80 ,
                  right:16 ,
                  child:FloatingActionButton(
-               heroTag:'Increment ',
-                 onPressed: counterController.increment,
-               child:const Icon(Icons.add) ,
+                   heroTag:'Increment ',
+                  onPressed: counterController.increment,
+                  child:const Icon(Icons.add) ,
              )),
              Positioned(
                bottom: 16,
