@@ -17,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:AppBar(title: Center(
+      appBar:AppBar(title: const Center(
           child: Text ("Advanced Get-X",style:TextStyle(fontSize:26 ) ,)) ,) ,
       body: Center(
         child: GetBuilder<CounterController>(
@@ -36,7 +36,8 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
 
         onPressed:(){
-          Get.find<CounterController>().increment();},
+          Get.find<CounterController>().increment();
+          },
         child: const Icon(Icons.add),
       ),
       );

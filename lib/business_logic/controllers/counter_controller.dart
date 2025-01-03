@@ -9,4 +9,4 @@ class CounterController extends GetxController{
     update();
   }
 
-}//
+}
