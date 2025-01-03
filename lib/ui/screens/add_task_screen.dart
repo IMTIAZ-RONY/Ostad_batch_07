@@ -631,7 +631,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       
                   const SizedBox(height:2),
 
-                  // Subtask Section
+                  /// Subtask Section
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -689,7 +689,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     },
                   ),
 
-// Condition to show + Add Subtask
+                /// Condition to show + Add Subtask
                   if (_shouldShowAddSubtask() && controllers.isEmpty)
                     TextButton(
                       onPressed: _addSubtaskField,
