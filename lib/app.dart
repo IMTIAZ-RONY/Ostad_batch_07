@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/src/bindings_interface.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:ostad_batch_07/ui/screens/home_screens.dart';
+
+import 'business_logic/controllers/counter_controller.dart';
 
 class CounterApp extends StatefulWidget {
   const CounterApp({super.key});
@@ -20,10 +25,18 @@ class _CounterAppState extends State<CounterApp> {
       builder: (context, child) {
         return GetMaterialApp(
           debugShowCheckedModeBanner: false,
-          home: HomeScreen(),
+          initialBinding:ControllerBinder() ,
+          home: const HomeScreen(),
         );
       },
     );
+  }
+
+}
+class ControllerBinder extends Bindings{
+  @override
+  void dependencies() {
+    Get.put(CounterController());
   }
 
 }

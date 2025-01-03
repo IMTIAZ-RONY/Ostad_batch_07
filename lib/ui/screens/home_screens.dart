@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../business_logic/controllers/counter_controller.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,17 +12,19 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-CounterController counterController= CounterController();
+//CounterController counterController=CounterController() ;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar:AppBar(title: Center(
+          child: Text ("Advanced Get-X",style:TextStyle(fontSize:26 ) ,)) ,) ,
       body: Center(
-        child: GetBuilder(
-          init:counterController ,
-            builder:(_){
+        child: GetBuilder<CounterController>(
+          //init:counterController ,
+            builder:(counterController){
               return   Text(
-                "Taka:$counterController.counter",
+                "Taka:${counterController.counter}",
                 style: const TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
@@ -31,7 +35,8 @@ CounterController counterController= CounterController();
         ),
       floatingActionButton: FloatingActionButton(
 
-        onPressed:counterController.increment ,
+        onPressed:(){
+          Get.find<CounterController>().increment();},
         child: const Icon(Icons.add),
       ),
       );
@@ -41,7 +46,7 @@ CounterController counterController= CounterController();
   }
 
 }
-class CounterController extends GetxController{
+/*class CounterController extends GetxController{
   int _counter = 0;
   get counter=>_counter;
   void increment(){
@@ -49,4 +54,4 @@ class CounterController extends GetxController{
     update();
   }
 
-}
+}*/
