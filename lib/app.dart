@@ -25,7 +25,7 @@ class _CounterAppState extends State<CounterApp> {
       builder: (context, child) {
         return GetMaterialApp(
           debugShowCheckedModeBanner: false,
-          initialBinding:ControllerBinder() ,
+
           home:  HomeScreen(),
         );
       },
@@ -33,10 +33,4 @@ class _CounterAppState extends State<CounterApp> {
   }
 
 }
-class ControllerBinder extends Bindings{
-  @override
-  void dependencies() {
-    Get.put(CounterController());
-  }
 
-}
