@@ -10,7 +10,7 @@ import 'business_logic/controllers/counter_controller.dart';
 
 class CounterApp extends StatefulWidget {
   const CounterApp({super.key});
-  static GlobalKey<NavigatorState> navigatorKey= GlobalKey<NavigatorState>();
+ // static GlobalKey<NavigatorState> navigatorKey= GlobalKey<NavigatorState>();
 
   @override
   State<CounterApp> createState() => _CounterAppState();
@@ -26,7 +26,7 @@ class _CounterAppState extends State<CounterApp> {
         return GetMaterialApp(
           debugShowCheckedModeBanner: false,
           initialBinding:ControllerBinder() ,
-          home: const HomeScreen(),
+          home:  HomeScreen(),
         );
       },
     );
@@ -37,6 +37,6 @@ class ControllerBinder extends Bindings{
   @override
   void dependencies() {
     Get.put(CounterController());
-  }   //
+  }
 
 }
