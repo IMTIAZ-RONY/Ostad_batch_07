@@ -1,4 +1,3 @@
-
 /*import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:file_picker/file_picker.dart';
@@ -255,6 +254,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     );
   }
 }*/
+
 ///Asana
 ///
 /*import 'dart:io';
@@ -499,7 +499,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     );
   }
 } */
+
+///2nd
+///2nd
+
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class AddTaskScreen extends StatefulWidget {
   @override
@@ -507,6 +513,15 @@ class AddTaskScreen extends StatefulWidget {
 }
 
 class _AddTaskScreenState extends State<AddTaskScreen> {
+  /*DateTime? dueDate;
+  TimeOfDay? startTime;
+  TimeOfDay? endTime;
+  List<TimeOfDay?> additionalTimes = [];*/
+
+  DateTime? startDate;
+  DateTime? endDate;
+  TimeOfDay? endTime;
+
   List<TextEditingController> controllers = [];
 
   List<bool> showClearIcon = [];
@@ -514,7 +529,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   void _addSubtaskField() {
     setState(() {
       controllers.add(TextEditingController());
-      showClearIcon.add(false);  // Always add a false value to keep the lists in sync  // নতুন ফিল্ডের জন্য false
+      showClearIcon.add(
+          false); // Always add a false value to keep the lists in sync  // নতুন ফিল্ডের জন্য false
     });
   }
 
@@ -527,8 +543,214 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   bool _shouldShowAddSubtask() {
-    return controllers.isEmpty || controllers.every((controller) => controller.text.isEmpty);
+    return controllers.isEmpty ||
+        controllers.every((controller) => controller.text.isEmpty);
   }
+
+  Future<void> _selectStartDate(BuildContext context) async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: startDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null) {
+      setState(() {
+        startDate = picked;
+      });
+      _selectEndDate(context);
+    }
+  }
+
+  Future<void> _selectEndDate(BuildContext context) async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: startDate ?? DateTime.now(),
+      firstDate: startDate ?? DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null) {
+      setState(() {
+        endDate = picked;
+      });
+      _selectEndTime(context);
+    }
+  }
+
+  Future<void> _selectEndTime(BuildContext context) async {
+    TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: endTime ?? TimeOfDay.now(),
+    );
+
+    if (picked != null) {
+      setState(() {
+        endTime = picked;
+      });
+    }
+  }
+
+  String formatDateTime(DateTime? date, TimeOfDay? time) {
+    if (date == null) return 'Select Date';
+    if (time == null) {
+      return DateFormat('EEE, MMM d, y').format(date);
+    } else {
+      final dateTime =
+          DateTime(date.year, date.month, date.day, time.hour, time.minute);
+      return DateFormat('EEE, MMM d, y - h:mm a').format(dateTime);
+    }
+  }
+
+  /* Future<void> _selectDueDate(BuildContext context) async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: dueDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null) {
+      setState(() {
+        dueDate = picked;
+      });
+      _showTimePickerModal(context);
+    }
+  }
+
+  Future<void> _showTimePickerModal(BuildContext context) async {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text('Start time'),
+                trailing: Text(startTime?.format(context) ?? 'Add start time'),
+                onTap: () => _selectStartTime(context),
+              ),
+              ListTile(
+                title: const Text('Due time'),
+                trailing: Text(endTime?.format(context) ?? 'Add due time'),
+                onTap: () => _selectEndTime(context),
+              ),
+              const Divider(),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Done', style: TextStyle(color: Colors.blue)),
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _selectStartTime(BuildContext context) async {
+    TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: startTime ?? TimeOfDay.now(),
+    );
+
+    if (picked != null) {
+      setState(() {
+        startTime = picked;
+      });
+    }
+  }
+
+  Future<void> _selectEndTime(BuildContext context) async {
+    TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: endTime ?? TimeOfDay.now(),
+    );
+
+    if (picked != null) {
+      setState(() {
+        endTime = picked;
+      });
+    }
+  }
+
+  Future<void> _addMoreTimes(BuildContext context) async {
+    TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (picked != null) {
+      setState(() {
+        additionalTimes.add(picked);
+      });
+    }
+  }
+
+  String formatDateTime(DateTime? date, TimeOfDay? time) {
+    if (date == null || time == null) return 'Select Date & Time';
+    final dateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+    return DateFormat('EEE, MMM d - h:mm a').format(dateTime);
+  }*/
+
+  /* Future<void> _selectDueDate(BuildContext context) async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: dueDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null) {
+      TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: dueTime ?? TimeOfDay.now(),
+      );
+
+      if (pickedTime != null) {
+        setState(() {
+          dueDate = picked;
+          dueTime = pickedTime;
+        });
+        _selectStartAndEndDates(context);
+      }
+    }
+  }
+
+  Future<void> _selectStartAndEndDates(BuildContext context) async {
+    DateTime? pickedStart = await showDatePicker(
+      context: context,
+      initialDate: dueDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedStart != null) {
+      DateTime? pickedEnd = await showDatePicker(
+        context: context,
+        initialDate: pickedStart,
+        firstDate: pickedStart,
+        lastDate: DateTime(2100),
+      );
+
+      setState(() {
+        startDate = pickedStart;
+        endDate = pickedEnd;
+      });
+    }
+  }
+
+  String formatDateTime(DateTime? date, TimeOfDay? time) {
+    if (date == null || time == null) return 'Due Date';
+    final dateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+    return DateFormat('EEE, MMM d, h:mm a').format(dateTime);
+  }*/
+
   @override
   void initState() {
     super.initState();
@@ -541,7 +763,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: true,
-        appBar:AppBar(title: const Text("TaskApp"),) ,
+        appBar: AppBar(
+          title: const Text("TaskApp"),
+        ),
         body: GestureDetector(
           onTap: () {
             FocusScope.of(context).unfocus();
@@ -557,79 +781,139 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     style: TextStyle(color: Colors.grey, fontSize: 14),
                   ),
                   const SizedBox(height: 10),
-      
+
                   // Task Name Field
                   TextFormField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: 'Task name...',
                       border: InputBorder.none,
-                      hintStyle: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.grey),
+                      hintStyle: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
                     ),
-                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 28, fontWeight: FontWeight.bold),
                   ),
-      
+
                   const SizedBox(height: 20),
                   Row(
                     children: [
                       const CircleAvatar(
                         radius: 16,
                         backgroundColor: Colors.pink,
-                        child: Text('IR', style: TextStyle(color: Colors.white)),
+                        child:
+                            Text('IR', style: TextStyle(color: Colors.white)),
                       ),
                       const SizedBox(width: 8),
-                      Column(
+                      const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             'Assigned to',
                             style: TextStyle(color: Colors.grey, fontSize: 12),
                           ),
                           Text(
                             'Imtiaz Rony',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w500),
                           ),
                         ],
                       ),
                       const Spacer(),
                       GestureDetector(
-                        onTap: () {},
-                        child: const Row(
+                        onTap: () => _selectStartDate(context),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.calendar_today, size: 18),
-                            SizedBox(width: 4),
-                            Text('Due date', style: TextStyle(color: Colors.grey)),
+                          startDate==null?DottedBorder(
+                            strokeWidth:1.0,
+                              color:Colors.grey ,
+                              borderType:BorderType.Circle ,
+                              dashPattern: [5,3],
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Icon( Icons.calendar_today,size: 18,color:Colors.grey ,),
+                              )):Container(
+                            decoration:BoxDecoration(
+                             shape:BoxShape.circle ,
+                              border:Border.all(
+                                color:Colors.green,
+                                width:1.2 ,
+                              ) ,
+                            ) ,
+                            child: const Padding(
+                              padding: EdgeInsets.all(4.0),
+                              child: Icon(
+                                Icons.calendar_today,
+                                size: 18,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                            const SizedBox(width: 6),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Due date',
+                                  style: TextStyle(
+                                    color: startDate == null ? Colors.grey : Colors.black,
+                                  ),
+                                ),
+                                if (startDate != null)
+                                  ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                       maxWidth: MediaQuery.of(context).size.width * 0.3,
+                                    ),
+                                    child: Text(
+                                      formatDateTime(startDate, endTime),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ],
                         ),
-                      ),
+                      )
+
                     ],
                   ),
-      
-                  const SizedBox(height: 30),
-      
+
+                  const SizedBox(height: 20),
+
                   // Project Name Field
                   TextFormField(
                     decoration: const InputDecoration(
                       hintText: '+ Add Project',
                       border: InputBorder.none,
-                      hintStyle: TextStyle(fontSize:14, fontWeight: FontWeight.w500, color: Colors.grey),
+                      hintStyle: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey),
                     ),
                     style: const TextStyle(fontSize: 14),
                   ),
-      
-                  const SizedBox(height:4),
-      
+
+                  const SizedBox(height: 4),
+
                   // Description Field
                   TextFormField(
-                    maxLines:2,
+                    maxLines: 2,
                     decoration: const InputDecoration(
                       hintText: 'Description',
                       border: InputBorder.none,
-                      hintStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey),
+                      hintStyle: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey),
                     ),
-                    style:TextStyle(fontSize: 14) ,
+                    style: const TextStyle(fontSize: 14),
                   ),
-      
-                  const SizedBox(height:2),
+
+                  const SizedBox(height: 2),
 
                   /// Subtask Section
                   ListView.builder(
@@ -646,15 +930,22 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.check_circle_outline_sharp,size:25,weight:100,color:Colors.grey , ),
+                            const Icon(
+                              Icons.check_circle_outline_sharp,
+                              size: 25,
+                              weight: 100,
+                              color: Colors.grey,
+                            ),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Focus(
                                 onFocusChange: (hasFocus) {
-                                  if (index < showClearIcon.length){
-                                  setState(() {
-                                    showClearIcon[index] = hasFocus && controllers[index].text.isNotEmpty;
-                                  });}
+                                  if (index < showClearIcon.length) {
+                                    setState(() {
+                                      showClearIcon[index] = hasFocus &&
+                                          controllers[index].text.isNotEmpty;
+                                    });
+                                  }
                                 },
                                 child: TextFormField(
                                   controller: controllers[index],
@@ -664,21 +955,27 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                     });
                                   },
                                   onFieldSubmitted: (value) {
-                                    if (value.isNotEmpty && index == controllers.length - 1) {
+                                    if (value.isNotEmpty &&
+                                        index == controllers.length - 1) {
                                       _addSubtaskField();
                                     }
                                   },
                                   decoration: const InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'Type here...',
-                                      hintStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey)
-                                  ),
+                                      border: InputBorder.none,
+                                      hintText: 'Type here...',
+                                      hintStyle: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.grey)),
                                 ),
                               ),
                             ),
                             if (showClearIcon[index])
                               IconButton(
-                                icon: const Icon(Icons.cancel,size:20 ,),
+                                icon: const Icon(
+                                  Icons.cancel,
+                                  size: 20,
+                                ),
                                 onPressed: () {
                                   _removeSubtaskField(index);
                                 },
@@ -689,24 +986,30 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     },
                   ),
 
-                /// Condition to show + Add Subtask
+                  /// Condition to show + Add Subtask
                   if (_shouldShowAddSubtask() && controllers.isEmpty)
                     TextButton(
                       onPressed: _addSubtaskField,
-                      child: const Text('+ Add Subtask', style: TextStyle(color: Colors.grey)),
+                      child: const Text('+ Add Subtask',
+                          style: TextStyle(color: Colors.grey)),
                     ),
 
-
                   const SizedBox(height: 150),
-      
+
                   // Bottom Icons
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      IconButton(icon: const Icon(Icons.camera_alt), onPressed: () {}),
-                      IconButton(icon: const Icon(Icons.photo_library), onPressed: () {}),
-                      IconButton(icon: const Icon(Icons.attach_file), onPressed: () {}),
-                      IconButton(icon: const Icon(Icons.group_add), onPressed: () {}),
+                      IconButton(
+                          icon: const Icon(Icons.camera_alt), onPressed: () {}),
+                      IconButton(
+                          icon: const Icon(Icons.photo_library),
+                          onPressed: () {}),
+                      IconButton(
+                          icon: const Icon(Icons.attach_file),
+                          onPressed: () {}),
+                      IconButton(
+                          icon: const Icon(Icons.group_add), onPressed: () {}),
                       TextButton(
                         onPressed: () {},
                         child: const Text('Create'),
@@ -723,12 +1026,4 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 }
 
-
-
-
-
-
-
-
-
-
+///3rd

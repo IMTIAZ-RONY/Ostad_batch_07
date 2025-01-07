@@ -51,7 +51,7 @@ dependencies:
   socket_io_client:
   socket_io:
   uuid:
-
+  dotted_border:
 
 
 dev_dependencies:
