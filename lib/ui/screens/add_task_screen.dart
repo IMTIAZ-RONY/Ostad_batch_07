@@ -816,7 +816,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           Text(
                             'Imtiaz Rony',
                             style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w500),
+                                fontSize: 14, fontWeight: FontWeight.w500),
                           ),
                         ],
                       ),
@@ -832,7 +832,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                               borderType:BorderType.Circle ,
                               dashPattern: [5,3],
                               child: Padding(
-                                padding: const EdgeInsets.all(4.0),
+                                padding: const EdgeInsets.all(5.0),
                                 child: Icon( Icons.calendar_today,size: 18,color:Colors.grey ,),
                               )):Container(
                             decoration:BoxDecoration(
@@ -843,7 +843,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                               ) ,
                             ) ,
                             child: const Padding(
-                              padding: EdgeInsets.all(4.0),
+                              padding: EdgeInsets.all(6.0),
                               child: Icon(
                                 Icons.calendar_today,
                                 size: 18,
