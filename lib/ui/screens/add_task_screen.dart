@@ -548,11 +548,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   Future<void> _selectStartDate(BuildContext context) async {
+    DateTime now = DateTime.now();
+    DateTime firstDate = DateTime(now.year - 50);
+    DateTime lastDate = DateTime(now.year + 50);
     DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: startDate ?? DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2100),
+      initialDate: startDate ?? now,
+      firstDate: firstDate,
+      lastDate: lastDate,
     );
 
     if (picked != null) {
@@ -564,11 +567,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   Future<void> _selectEndDate(BuildContext context) async {
+    DateTime now = DateTime.now();
+    DateTime firstDate = DateTime(now.year - 50);
+    DateTime lastDate = DateTime(now.year + 50);
     DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: startDate ?? DateTime.now(),
-      firstDate: startDate ?? DateTime.now(),
-      lastDate: DateTime(2100),
+      initialDate: startDate ?? now,
+      firstDate: firstDate,
+      lastDate: lastDate,
     );
 
     if (picked != null) {
