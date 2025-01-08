@@ -16,6 +16,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   TimeOfDay? endTime;
   int imageCount = 0; // Counter for images
   int fileCount = 0; // Counter for files
+  bool _isLoading = false; // Loading state
   List<TextEditingController> controllers = [];
   List<bool> showClearIcon = [];
   final ImagePicker _picker = ImagePicker();
@@ -37,7 +38,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   bool _shouldShowAddSubtask() {
-    return controllers.isEmpty || controllers.every((controller) => controller.text.isEmpty);
+    return controllers.isEmpty ||
+        controllers.every((controller) => controller.text.isEmpty);
   }
 
   Future<void> _selectStartDate(BuildContext context) async {
@@ -93,48 +95,68 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   //   });
   // }
   Future<void> _attachFile(String filePath) async {
-
     setState(() {
+      attachedFiles.add(filePath);
 
-     attachedFiles.add(filePath);
-
-      if (filePath.endsWith('.pdf') || filePath.endsWith('.doc') || filePath.endsWith('.docx')) {
-
+      if (filePath.endsWith('.pdf') ||
+          filePath.endsWith('.doc') ||
+          filePath.endsWith('.docx')) {
         fileCount++;
-
       } else {
-
         imageCount++;
-
       }
-
     });
-
   }
-  void _removeAttachedFile(String filePath) {
 
+  void _removeAttachedFile(String filePath) {
     setState(() {
       attachedFiles.remove(filePath);
-      if (filePath.endsWith('.pdf') || filePath.endsWith('.doc') || filePath.endsWith('.docx')) {
+      if (filePath.endsWith('.pdf') ||
+          filePath.endsWith('.doc') ||
+          filePath.endsWith('.docx')) {
         fileCount--;
       } else {
         imageCount--;
       }
     });
-
   }
+
+  // Future<void> _pickImageFromCamera() async {
+  //   final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+  //   if (image != null) {
+  //     _attachFile(image.path);
+  //   }
+  // }
   Future<void> _pickImageFromCamera() async {
+    setState(() {
+      _isLoading = true; // Start loading
+    });
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
     if (image != null) {
-      _attachFile(image.path);
+      await _attachFile(image.path);
     }
+    setState(() {
+      _isLoading = false; // Stop loading
+    });
   }
 
-  Future<void> _pickImageFromGallery() async {
+  /* Future<void> _pickImageFromGallery() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       _attachFile(image.path);
     }
+  }*/
+  Future<void> _pickImageFromGallery() async {
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      await _attachFile(image.path);
+    }
+    setState(() {
+      _isLoading = false; // Stop loading
+    });
   }
 
   Future<void> _attachDocument() async {
@@ -160,12 +182,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     if (time == null) {
       return DateFormat('EEE, MMM d, y').format(date);
     } else {
-      final dateTime = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+      final dateTime =
+          DateTime(date.year, date.month, date.day, time.hour, time.minute);
       return DateFormat('EEE, MMM d, y - h:mm a').format(dateTime);
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -194,9 +215,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     decoration: const InputDecoration(
                       hintText: 'Task name...',
                       border: InputBorder.none,
-                      hintStyle: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.grey),
+                      hintStyle: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
                     ),
-                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 28, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 20),
                   Row(
@@ -204,14 +229,19 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       const CircleAvatar(
                         radius: 16,
                         backgroundColor: Colors.pink,
-                        child: Text('IR', style: TextStyle(color: Colors.white)),
+                        child:
+                            Text('IR', style: TextStyle(color: Colors.white)),
                       ),
                       const SizedBox(width: 8),
                       const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Assigned to', style: TextStyle(color: Colors.grey, fontSize: 12)),
-                          Text('Imtiaz Rony', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+                          Text('Assigned to',
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 12)),
+                          Text('Imtiaz Rony',
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w500)),
                         ],
                       ),
                       const Spacer(),
@@ -222,41 +252,52 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           children: [
                             startDate == null
                                 ? DottedBorder(
-                              strokeWidth: 1.0,
-                              color: Colors.grey,
-                              borderType: BorderType.Circle,
-                              dashPattern: [5, 3],
-                              child: Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: Icon(Icons.calendar_today, size: 18, color: Colors.grey),
-                              ),
-                            )
+                                    strokeWidth: 1.0,
+                                    color: Colors.grey,
+                                    borderType: BorderType.Circle,
+                                    dashPattern: [5, 3],
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: Icon(Icons.calendar_today,
+                                          size: 18, color: Colors.grey),
+                                    ),
+                                  )
                                 : Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.green, width: 1.2),
-                              ),
-                              child: const Padding(
-                                padding: EdgeInsets.all(6.0),
-                                child: Icon(Icons.calendar_today, size: 18, color: Colors.grey),
-                              ),
-                            ),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                          color: Colors.green, width: 1.2),
+                                    ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(6.0),
+                                      child: Icon(Icons.calendar_today,
+                                          size: 18, color: Colors.grey),
+                                    ),
+                                  ),
                             const SizedBox(width: 6),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   'Due date',
-                                  style: TextStyle(color: startDate == null ? Colors.grey : Colors.black),
+                                  style: TextStyle(
+                                      color: startDate == null
+                                          ? Colors.grey
+                                          : Colors.black),
                                 ),
                                 if (startDate != null)
                                   ConstrainedBox(
-                                    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.3),
+                                    constraints: BoxConstraints(
+                                        maxWidth:
+                                            MediaQuery.of(context).size.width *
+                                                0.3),
                                     child: Text(
                                       formatDateTime(startDate, endTime),
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 1,
-                                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                                      style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500),
                                     ),
                                   ),
                               ],
@@ -271,7 +312,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     decoration: const InputDecoration(
                       hintText: '+ Add Project',
                       border: InputBorder.none,
-                      hintStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey),
+                      hintStyle: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey),
                     ),
                     style: const TextStyle(fontSize: 14),
                   ),
@@ -281,7 +325,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     decoration: const InputDecoration(
                       hintText: 'Description',
                       border: InputBorder.none,
-                      hintStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey),
+                      hintStyle: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey),
                     ),
                     style: const TextStyle(fontSize: 14),
                   ),
@@ -300,14 +347,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.check_circle_outline_sharp, size: 25, color: Colors.grey),
+                            const Icon(Icons.check_circle_outline_sharp,
+                                size: 25, color: Colors.grey),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Focus(
                                 onFocusChange: (hasFocus) {
                                   if (index < showClearIcon.length) {
                                     setState(() {
-                                      showClearIcon[index] = hasFocus && controllers[index].text.isNotEmpty;
+                                      showClearIcon[index] = hasFocus &&
+                                          controllers[index].text.isNotEmpty;
                                     });
                                   }
                                 },
@@ -319,14 +368,18 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                     });
                                   },
                                   onFieldSubmitted: (value) {
-                                    if (value.isNotEmpty && index == controllers.length - 1) {
+                                    if (value.isNotEmpty &&
+                                        index == controllers.length - 1) {
                                       _addSubtaskField();
                                     }
                                   },
                                   decoration: const InputDecoration(
                                     border: InputBorder.none,
                                     hintText: 'Type here...',
-                                    hintStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey),
+                                    hintStyle: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.grey),
                                   ),
                                 ),
                               ),
@@ -346,22 +399,26 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   if (_shouldShowAddSubtask() && controllers.isEmpty)
                     TextButton(
                       onPressed: _addSubtaskField,
-                      child: const Text('+ Add Subtask', style: TextStyle(color: Colors.grey)),
+                      child: const Text('+ Add Subtask',
+                          style: TextStyle(color: Colors.grey)),
                     ),
                   const SizedBox(height: 20),
-
+// Loader for image and file picking
+                  if (_isLoading) Center(child: CircularProgressIndicator()),
                   // Display attached files as cards
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: attachedFiles.map((file) {
-                        final isPdf = file.endsWith('.pdf') || file.endsWith('.doc') || file.endsWith('.docx');
+                        final isPdf = file.endsWith('.pdf') ||
+                            file.endsWith('.doc') ||
+                            file.endsWith('.docx');
                         return Container(
                           margin: const EdgeInsets.symmetric(horizontal: 0),
                           child: Stack(
                             children: [
                               Card(
-                                elevation:0,
+                                elevation: 0,
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Column(
@@ -369,20 +426,26 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                       // Use a placeholder image for demonstration
                                       isPdf
                                           ? Row(
-                                        children: [
-                                          Icon(Icons.picture_as_pdf, size: 50, color: Colors.red),
-                                          const SizedBox(width: 8),
-                                          SizedBox(
-                                            width: 80,
-                                            child: Text(
-                                              file.split('/').last,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                          : Image.file(File(file), width: 100, height: 100, fit: BoxFit.cover),
+                                              children: [
+                                                Icon(Icons.picture_as_pdf,
+                                                    size: 50,
+                                                    color: Colors.red),
+                                                const SizedBox(width: 8),
+                                                SizedBox(
+                                                  width: 80,
+                                                  child: Text(
+                                                    file.split('/').last,
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          : Image.file(File(file),
+                                              width: 100,
+                                              height: 100,
+                                              fit: BoxFit.cover),
                                     ],
                                   ),
                                 ),
@@ -391,10 +454,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                 right: 1,
                                 top: 1,
                                 child: IconButton(
-                                  icon: const Icon(Icons.cancel_rounded, color: Colors.white),
+                                  icon: const Icon(Icons.cancel_rounded,
+                                      color: Colors.white),
                                   onPressed: () {
                                     setState(() {
-                                     // attachedFiles.remove(file);
+                                      // attachedFiles.remove(file);
                                       _removeAttachedFile(file);
                                     });
                                   },
@@ -408,7 +472,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   ),
                   const SizedBox(height: 160),
 
-                 /* Row(
+                  /* Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       IconButton(
@@ -457,7 +521,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                 backgroundColor: Colors.transparent,
                                 child: Text(
                                   '$imageCount',
-                                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 14),
                                 ),
                               ),
                             ),
@@ -478,7 +543,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                 backgroundColor: Colors.transparent,
                                 child: Text(
                                   '$fileCount',
-                                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 14),
                                 ),
                               ),
                             ),
