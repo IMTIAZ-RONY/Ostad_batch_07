@@ -454,10 +454,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                               top: 0,
                               child: CircleAvatar(
                                 radius: 10,
-                                backgroundColor: Colors.red,
+                                backgroundColor: Colors.transparent,
                                 child: Text(
                                   '$imageCount',
-                                  style: TextStyle(color: Colors.white, fontSize: 12),
+                                  style: TextStyle(color: Colors.grey, fontSize: 14),
                                 ),
                               ),
                             ),
@@ -475,10 +475,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                               top: 0,
                               child: CircleAvatar(
                                 radius: 10,
-                                backgroundColor: Colors.red,
+                                backgroundColor: Colors.transparent,
                                 child: Text(
                                   '$fileCount',
-                                  style: TextStyle(color: Colors.white, fontSize: 12),
+                                  style: TextStyle(color: Colors.grey, fontSize: 14),
                                 ),
                               ),
                             ),
