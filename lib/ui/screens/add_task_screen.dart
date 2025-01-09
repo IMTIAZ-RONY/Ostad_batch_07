@@ -42,7 +42,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         controllers.every((controller) => controller.text.isEmpty);
   }
 
-  Future<void> _selectStartDate(BuildContext context) async {
+  /* Future<void> _selectStartDate(BuildContext context) async {
     DateTime now = DateTime.now();
     DateTime? picked = await showDatePicker(
       context: context,
@@ -57,9 +57,36 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       });
       _selectEndDate(context);
     }
+  }*/
+  Future<void> _selectStartDate(BuildContext context) async {
+    DateTime now = DateTime.now();
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: startDate ?? now,
+      firstDate: DateTime(now.year - 50),
+      lastDate: DateTime(now.year + 50),
+      builder: (BuildContext context, Widget? child) {
+        return Column(
+          children: [
+            Container(
+              child: Text('Select Starting Date'),
+              padding: EdgeInsets.all(16),
+              alignment: Alignment.center,
+            ),
+            Expanded(child: child!),
+          ],
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        startDate = picked;
+      });
+      _selectEndDate(context);
+    }
   }
 
-  Future<void> _selectEndDate(BuildContext context) async {
+  /*Future<void> _selectEndDate(BuildContext context) async {
     DateTime now = DateTime.now();
     DateTime? picked = await showDatePicker(
       context: context,
@@ -74,6 +101,34 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       });
       _selectEndTime(context);
     }
+  }*/
+  Future<void> _selectEndDate(BuildContext context) async {
+    DateTime now = DateTime.now();
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: endDate ?? now,
+      firstDate: startDate ?? now,
+      // Ensure end date is after start date
+      lastDate: DateTime(now.year + 50),
+      builder: (BuildContext context, Widget? child) {
+        return Column(
+          children: [
+            Container(
+              child: Text('Select Last Date'),
+              padding: EdgeInsets.all(16),
+              alignment: Alignment.center,
+            ),
+            Expanded(child: child!),
+          ],
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        endDate = picked;
+      });
+      _selectEndTime(context);
+    }
   }
 
   Future<void> _selectEndTime(BuildContext context) async {
@@ -81,7 +136,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       context: context,
       initialTime: endTime ?? TimeOfDay.now(),
     );
-
     if (picked != null) {
       setState(() {
         endTime = picked;
@@ -97,7 +151,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   Future<void> _attachFile(String filePath) async {
     setState(() {
       attachedFiles.add(filePath);
-
       if (filePath.endsWith('.pdf') ||
           filePath.endsWith('.doc') ||
           filePath.endsWith('.docx')) {
