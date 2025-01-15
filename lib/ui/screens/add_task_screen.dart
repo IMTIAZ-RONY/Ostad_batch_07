@@ -42,42 +42,21 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         controllers.every((controller) => controller.text.isEmpty);
   }
 
-  /* Future<void> _selectStartDate(BuildContext context) async {
+   Future<void> _selectStartDate(BuildContext context) async {
     DateTime now = DateTime.now();
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: startDate ?? now,
       firstDate: DateTime(now.year - 50),
       lastDate: DateTime(now.year + 50),
+      helpText: 'Select Starting Date',
+      //barrierColor:Colors.greenAccent ,
+      initialDatePickerMode: DatePickerMode.day, // Start with day picker
+      fieldHintText: 'MM/DD/YYYY', // Hint for manual input
+      fieldLabelText: 'Enter your 1st date.', // Label for manual input
+
     );
 
-    if (picked != null) {
-      setState(() {
-        startDate = picked;
-      });
-      _selectEndDate(context);
-    }
-  }*/
-  Future<void> _selectStartDate(BuildContext context) async {
-    DateTime now = DateTime.now();
-    DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: startDate ?? now,
-      firstDate: DateTime(now.year - 50),
-      lastDate: DateTime(now.year + 50),
-      builder: (BuildContext context, Widget? child) {
-        return Column(
-          children: [
-            Container(
-              child: Text('Select Starting Date'),
-              padding: EdgeInsets.all(16),
-              alignment: Alignment.center,
-            ),
-            Expanded(child: child!),
-          ],
-        );
-      },
-    );
     if (picked != null) {
       setState(() {
         startDate = picked;
@@ -86,43 +65,21 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     }
   }
 
-  /*Future<void> _selectEndDate(BuildContext context) async {
+
+  Future<void> _selectEndDate(BuildContext context) async {
     DateTime now = DateTime.now();
     DateTime? picked = await showDatePicker(
       context: context,
       initialDate: endDate ?? now,
       firstDate: DateTime(now.year - 50),
       lastDate: DateTime(now.year + 50),
+      helpText: 'Select Ending Date',
+      initialDatePickerMode:DatePickerMode.day ,
+      fieldHintText:"MM/DD/YYYY" ,
+      fieldLabelText:"Enter your 2nd date.",
+
     );
 
-    if (picked != null) {
-      setState(() {
-        endDate = picked;
-      });
-      _selectEndTime(context);
-    }
-  }*/
-  Future<void> _selectEndDate(BuildContext context) async {
-    DateTime now = DateTime.now();
-    DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: endDate ?? now,
-      firstDate: startDate ?? now,
-      // Ensure end date is after start date
-      lastDate: DateTime(now.year + 50),
-      builder: (BuildContext context, Widget? child) {
-        return Column(
-          children: [
-            Container(
-              child: Text('Select Last Date'),
-              padding: EdgeInsets.all(16),
-              alignment: Alignment.center,
-            ),
-            Expanded(child: child!),
-          ],
-        );
-      },
-    );
     if (picked != null) {
       setState(() {
         endDate = picked;
@@ -508,7 +465,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                 top: 1,
                                 child: IconButton(
                                   icon: const Icon(Icons.cancel_rounded,
-                                      color: Colors.white),
+                                      color: Colors.red),
                                   onPressed: () {
                                     setState(() {
                                       // attachedFiles.remove(file);
@@ -525,33 +482,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   ),
                   const SizedBox(height: 160),
 
-                  /* Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.camera_alt),
-                        onPressed: _pickImageFromCamera,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.photo_library),
-                        onPressed: _pickImageFromGallery,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.attach_file),
-                        onPressed: _attachDocument,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.group_add),
-                        onPressed: () {},
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // Handle create action
-                        },
-                        child: const Text('Create'),
-                      ),
-                    ],
-                  ),*/
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
