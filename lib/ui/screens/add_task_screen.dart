@@ -10,7 +10,7 @@ class AddTaskScreen extends StatefulWidget {
   _AddTaskScreenState createState() => _AddTaskScreenState();
 }
 
-class _AddTaskScreenState extends State<AddTaskScreen>with WidgetsBindingObserver {
+class _AddTaskScreenState extends State<AddTaskScreen> {
   DateTime? startDate;
   DateTime? endDate;
   TimeOfDay? endTime;
