@@ -182,143 +182,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         controllers.every((controller) => controller.text.isEmpty);
   }
 
-  Future<void> _selectStartDate(BuildContext context) async {
-    DateTime now = DateTime.now();
-    DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: startDate ?? now,
-      firstDate: DateTime(now.year - 50),
-      lastDate: DateTime(now.year + 50),
-      helpText: 'Select Starting Date',
-      initialDatePickerMode: DatePickerMode.day,
-      // Start with day picker
-      fieldHintText: 'MM/DD/YYYY',
-      // Hint for manual input
-      fieldLabelText: 'Enter your 1st date.', // Label for manual input
-    );
-
-    if (picked != null) {
-      setState(() {
-        startDate = picked;
-      });
-      _selectEndDate(context);
-    }
-  }
-
-  Future<void> _selectEndDate(BuildContext context) async {
-    DateTime now = DateTime.now();
-    DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: endDate ?? now,
-      firstDate: DateTime(now.year - 50),
-      lastDate: DateTime(now.year + 50),
-      helpText: 'Select Ending Date',
-      initialDatePickerMode: DatePickerMode.day,
-      fieldHintText: "MM/DD/YYYY",
-      fieldLabelText: "Enter your 2nd date.",
-    );
-
-    if (picked != null) {
-      setState(() {
-        endDate = picked;
-      });
-      _selectEndTime(context);
-    }
-  }
-
-  Future<void> _selectEndTime(BuildContext context) async {
-    TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: endTime ?? TimeOfDay.now(),
-    );
-    if (picked != null) {
-      setState(() {
-        endTime = picked;
-      });
-    }
-  }
-
-  Future<void> _attachFile(String filePath) async {
-    setState(() {
-      attachedFiles.add(filePath);
-      if (filePath.endsWith('.pdf') ||
-          filePath.endsWith('.doc') ||
-          filePath.endsWith('.docx')) {
-        fileCount++;
-      } else {
-        imageCount++;
-      }
-    });
-  }
-
-  void _removeAttachedFile(String filePath) {
-    setState(() {
-      attachedFiles.remove(filePath);
-      if (filePath.endsWith('.pdf') ||
-          filePath.endsWith('.doc') ||
-          filePath.endsWith('.docx')) {
-        fileCount--;
-      } else {
-        imageCount--;
-      }
-    });
-  }
-
-  Future<void> _pickImageFromCamera() async {
-    setState(() {
-      _isLoading = true; // Start loading
-    });
-    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
-    if (image != null) {
-      await _attachFile(image.path);
-    }
-    setState(() {
-      _isLoading = false; // Stop loading
-    });
-  }
-
-  Future<void> _pickImageFromGallery() async {
-    setState(() {
-      _isLoading = true; // Start loading
-    });
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      await _attachFile(image.path);
-    }
-    setState(() {
-      _isLoading = false; // Stop loading
-    });
-  }
-
-  Future<void> _attachDocument() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf', 'doc', 'docx'],
-      );
-
-      if (result != null && result.files.isNotEmpty) {
-        String filePath = result.files.single.path!;
-        _attachFile(filePath);
-      } else {
-        print('No file selected');
-      }
-    } catch (e) {
-      print('Error picking file: $e');
-    }
-  }
-
-  String formatDateTime(DateTime? date, TimeOfDay? time) {
-    if (date == null) return 'Select Date';
-    if (time == null) {
-      return DateFormat('EEE, MMM d, y').format(date);
-    } else {
-      final dateTime =
-          DateTime(date.year, date.month, date.day, time.hour, time.minute);
-      return DateFormat('EEE, MMM d, y - h:mm a').format(dateTime);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -600,5 +463,142 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _selectStartDate(BuildContext context) async {
+    DateTime now = DateTime.now();
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: startDate ?? now,
+      firstDate: DateTime(now.year - 50),
+      lastDate: DateTime(now.year + 50),
+      helpText: 'Select the start date.',
+      initialDatePickerMode: DatePickerMode.day,
+      // Start with day picker
+      fieldHintText: 'MM/DD/YYYY',
+      // Hint for manual input
+      fieldLabelText: 'Enter your 1st date.', // Label for manual input
+    );
+
+    if (picked != null) {
+      setState(() {
+        startDate = picked;
+      });
+      _selectEndDate(context);
+    }
+  }
+
+  Future<void> _selectEndDate(BuildContext context) async {
+    DateTime now = DateTime.now();
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: endDate ?? now,
+      firstDate: DateTime(now.year - 50),
+      lastDate: DateTime(now.year + 50),
+      helpText: 'Select the end date.',
+      initialDatePickerMode: DatePickerMode.day,
+      fieldHintText: "MM/DD/YYYY",
+      fieldLabelText: "Enter your 2nd date.",
+    );
+
+    if (picked != null) {
+      setState(() {
+        endDate = picked;
+      });
+      _selectEndTime(context);
+    }
+  }
+
+  Future<void> _selectEndTime(BuildContext context) async {
+    TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: endTime ?? TimeOfDay.now(),
+    );
+    if (picked != null) {
+      setState(() {
+        endTime = picked;
+      });
+    }
+  }
+
+  Future<void> _attachFile(String filePath) async {
+    setState(() {
+      attachedFiles.add(filePath);
+      if (filePath.endsWith('.pdf') ||
+          filePath.endsWith('.doc') ||
+          filePath.endsWith('.docx')) {
+        fileCount++;
+      } else {
+        imageCount++;
+      }
+    });
+  }
+
+  void _removeAttachedFile(String filePath) {
+    setState(() {
+      attachedFiles.remove(filePath);
+      if (filePath.endsWith('.pdf') ||
+          filePath.endsWith('.doc') ||
+          filePath.endsWith('.docx')) {
+        fileCount--;
+      } else {
+        imageCount--;
+      }
+    });
+  }
+
+  Future<void> _pickImageFromCamera() async {
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    if (image != null) {
+      await _attachFile(image.path);
+    }
+    setState(() {
+      _isLoading = false; // Stop loading
+    });
+  }
+
+  Future<void> _pickImageFromGallery() async {
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      await _attachFile(image.path);
+    }
+    setState(() {
+      _isLoading = false; // Stop loading
+    });
+  }
+
+  Future<void> _attachDocument() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'doc', 'docx'],
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        String filePath = result.files.single.path!;
+        _attachFile(filePath);
+      } else {
+        print('No file selected');
+      }
+    } catch (e) {
+      print('Error picking file: $e');
+    }
+  }
+
+  String formatDateTime(DateTime? date, TimeOfDay? time) {
+    if (date == null) return 'Select Date';
+    if (time == null) {
+      return DateFormat('EEE, MMM d, y').format(date);
+    } else {
+      final dateTime =
+      DateTime(date.year, date.month, date.day, time.hour, time.minute);
+      return DateFormat('EEE, MMM d, y - h:mm a').format(dateTime);
+    }
   }
 }
