@@ -52,6 +52,7 @@ dependencies:
   socket_io:
   uuid:
   dotted_border:
+  flutter_colorpicker:
 
 
 dev_dependencies:

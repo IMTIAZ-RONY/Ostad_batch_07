@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class AddTaskScreen extends StatefulWidget {
   @override
@@ -20,7 +21,12 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   bool isBold = false;
   bool isItalic = false;
   bool isUnderline = false;
-
+  TextAlign textAlign = TextAlign.left;
+  double fontSize = 16.0;
+  Color fontColor = Colors.black;
+  bool isBulletList = false;
+  bool isNumberList = false;
+  List<String> listItems = [];
   bool isDescriptionFocused = false;
   TextEditingController taskNameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
@@ -28,154 +34,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   List<bool> showClearIcon = [];
   final ImagePicker _picker = ImagePicker();
   List<String> attachedFiles = [];
-
-  Widget _buildDescriptionField() {
-    return Focus(
-      onFocusChange: (hasFocus) {
-        setState(() {
-          isDescriptionFocused = hasFocus;
-        });
-      },
-      child: TextField(
-        controller: descriptionController,
-        maxLines: 2,
-        decoration: const InputDecoration(
-          hintText: 'Description',
-          border: InputBorder.none,
-          hintStyle: TextStyle(
-              fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey),
-        ),
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-          fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
-          decoration:
-              isUnderline ? TextDecoration.underline : TextDecoration.none,
-        ),
-      ),
-    );
-  }
-
- Widget _buildBottomRow() {
-    return Row(
-      children: [
-        Expanded(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.camera_alt),
-                  onPressed: _pickImageFromCamera,
-                ),
-                Stack(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.photo_library),
-                      onPressed: _pickImageFromGallery,
-                    ),
-                    if (imageCount > 0)
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: CircleAvatar(
-                          radius: 10,
-                          backgroundColor: Colors.red,
-                          child: Text(
-                            '$imageCount',
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 12),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                Stack(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.attach_file),
-                      onPressed: _attachDocument,
-                    ),
-                    if (fileCount > 0)
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: CircleAvatar(
-                          radius: 10,
-                          backgroundColor: Colors.red,
-                          child: Text(
-                            '$fileCount',
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 12),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                IconButton(
-                  icon: const Icon(Icons.group_add),
-                  onPressed: () {
-                    // Collaborator action
-                  },
-                ),
-                if (isDescriptionFocused) ...[
-                  IconButton(
-                    icon: Icon(Icons.format_bold,
-                        color: isBold ? Colors.blue : Colors.grey),
-                    onPressed: () {
-                      setState(() {
-                        isBold = !isBold;
-                      });
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.format_italic,
-                        color: isItalic ? Colors.blue : Colors.grey),
-                    onPressed: () {
-                      setState(() {
-                        isItalic = !isItalic;
-                      });
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.format_underline,
-                        color: isUnderline ? Colors.blue : Colors.grey),
-                    onPressed: () {
-                      setState(() {
-                        isUnderline = !isUnderline;
-                      });
-                    },
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-        TextButton(
-          onPressed: () {
-            // Handle create action
-          },
-          child: const Text('Create'),
-        ),
-      ],
-    );
-  }
-
-
-  void _addSubtaskField() {
-    setState(() {
-      controllers.add(TextEditingController());
-      showClearIcon.add(false);
-    });
-  }
-
-  void _removeSubtaskField(int index) {
-    setState(() {
-      controllers[index].dispose();
-      controllers.removeAt(index);
-      showClearIcon.removeAt(index);
-    });
-  }
 
   bool _shouldShowAddSubtask() {
     return controllers.isEmpty ||
@@ -356,7 +214,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                       _addSubtaskField();
                                     }
                                   },
-                                  decoration: const InputDecoration(
+                                  decoration:  const InputDecoration(
                                     border: InputBorder.none,
                                     hintText: 'Type here...',
                                     hintStyle: TextStyle(
@@ -463,6 +321,325 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         ),
       ),
     );
+  }
+
+
+
+
+  Widget _buildDescriptionField() {
+    return Focus(
+      onFocusChange: (hasFocus) {
+        setState(() {
+          isDescriptionFocused = hasFocus;
+        });
+      },
+      child: TextFormField(
+        controller: descriptionController,
+        maxLines: null,
+        textAlign: textAlign,
+        onChanged: (value) {
+          // Split the text into lines
+          List<String> lines = value.split('\n');
+          String updatedText = '';
+
+          for (int i = 0; i < lines.length; i++) {
+            String trimmedLine = lines[i].trim();
+
+            if (isBulletList) {
+              // Replace number if present and add bullet icon
+              if (trimmedLine.startsWith(RegExp(r'^\d+\.\s'))) {
+                trimmedLine = trimmedLine.replaceFirst(RegExp(r'^\d+\.\s'), '');
+              }
+              if (!trimmedLine.startsWith('•')) {
+                updatedText += '• $trimmedLine\n';
+              } else {
+                updatedText += '$trimmedLine\n';
+              }
+            } else if (isNumberList) {
+              // Replace bullet if present and add numbered list
+              if (trimmedLine.startsWith('•')) {
+                trimmedLine = trimmedLine.replaceFirst('•', '').trim();
+              }
+              if (!RegExp(r'^\d+\.\s').hasMatch(trimmedLine)) {
+                updatedText += '${i + 1}. $trimmedLine\n';
+              } else {
+                updatedText += '$trimmedLine\n';
+              }
+            } else {
+              // Remove any existing bullets or numbers if none is selected
+              if (trimmedLine.startsWith('•')) {
+                trimmedLine = trimmedLine.replaceFirst('•', '').trim();
+              } else if (trimmedLine.startsWith(RegExp(r'^\d+\.\s'))) {
+                trimmedLine = trimmedLine.replaceFirst(RegExp(r'^\d+\.\s'), '').trim();
+              }
+              updatedText += '$trimmedLine\n';
+            }
+          }
+
+          // Avoid unnecessary updates
+          if (descriptionController.text != updatedText.trim()) {
+            descriptionController.text = updatedText.trim();
+            descriptionController.selection = TextSelection.fromPosition(
+              TextPosition(offset: descriptionController.text.length),
+            );
+          }
+        },
+        decoration: const InputDecoration(
+          hintText: 'Description',
+          border: InputBorder.none,
+          hintStyle: TextStyle(
+              fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey),
+        ),
+        style: TextStyle(
+          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+          fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
+          decoration: isUnderline ? TextDecoration.underline : TextDecoration.none,
+          fontSize: fontSize,
+          color: fontColor,
+        ),
+      ),
+    );
+  }
+
+
+
+
+  Widget _buildBottomRow() {
+    return Row(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.camera_alt),
+                  onPressed: _pickImageFromCamera,
+                ),
+                Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.photo_library),
+                      onPressed: _pickImageFromGallery,
+                    ),
+                    if (imageCount > 0)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: CircleAvatar(
+                          radius: 10,
+                          backgroundColor: Colors.red,
+                          child: Text(
+                            '$imageCount',
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 12),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.attach_file),
+                      onPressed: _attachDocument,
+                    ),
+                    if (fileCount > 0)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: CircleAvatar(
+                          radius: 10,
+                          backgroundColor: Colors.red,
+                          child: Text(
+                            '$fileCount',
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 12),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.group_add),
+                  onPressed: () {
+                    // Collaborator action
+                  },
+                ),
+                if (isDescriptionFocused) ...[
+                  IconButton(
+                    icon: Icon(Icons.format_bold,
+                        color: isBold ? Colors.blue : Colors.grey),
+                    onPressed: () {
+                      setState(() {
+                        isBold = !isBold;
+                      });
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.format_italic,
+                        color: isItalic ? Colors.blue : Colors.grey),
+                    onPressed: () {
+                      setState(() {
+                        isItalic = !isItalic;
+                      });
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.format_underline,
+                        color: isUnderline ? Colors.blue : Colors.grey),
+                    onPressed: () {
+                      setState(() {
+                        isUnderline = !isUnderline;
+                      });
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.format_align_left),
+                    onPressed: () {
+                      setState(() {
+                        textAlign = TextAlign.left;
+                      });
+                    },
+                    color: textAlign == TextAlign.left ? Colors.blue : Colors.black,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.format_align_center),
+                    onPressed: () {
+                      setState(() {
+                        textAlign = TextAlign.center;
+                      });
+                    },
+                    color: textAlign == TextAlign.center ? Colors.blue : Colors.black,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.format_align_right),
+                    onPressed: () {
+                      setState(() {
+                        textAlign = TextAlign.right;
+                      });
+                    },
+                    color: textAlign == TextAlign.right ? Colors.blue : Colors.black,
+                  ),
+
+               /*   IconButton(
+                    icon: const Icon(Icons.format_list_bulleted),
+                    onPressed: () {
+                      setState(() {
+                        isBulletList = !isBulletList;
+                        isNumberList = false;
+                      });
+                    },
+                    color: isBulletList ? Colors.blue : Colors.black,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.format_list_numbered),
+                    onPressed: () {
+                      setState(() {
+                        isNumberList = !isNumberList;
+                        isBulletList = false;
+                      });
+                    },
+                    color: isNumberList ? Colors.blue : Colors.black,
+                  ),*/
+                  IconButton(
+                    icon: Icon(Icons.format_list_bulleted,
+                        color: isBulletList ? Colors.blue : Colors.grey),
+                    onPressed: () {
+                      setState(() {
+                        isBulletList = true;
+                        isNumberList = false;
+                      });
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.format_list_numbered,
+                        color: isNumberList ? Colors.blue : Colors.grey),
+                    onPressed: () {
+                      setState(() {
+                        isNumberList = true;
+                        isBulletList = false;
+                      });
+                    },
+                  ),
+
+                  DropdownButton<double>(
+                    value: fontSize,
+                    items: [12.0, 14.0, 16.0, 18.0, 20.0]
+                        .map((size) => DropdownMenuItem(
+                      value: size,
+                      child: Text(
+                        '$size px',
+                        style: TextStyle(fontSize: size),
+                      ),
+                    ))
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        fontSize = value!;
+                      });
+                    },
+                  ),
+
+                  IconButton(
+                    icon: const Icon(Icons.color_lens),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Select Font Color'),
+                          content: SingleChildScrollView(
+                            child: BlockPicker(
+                              pickerColor: fontColor,
+                              onColorChanged: (color) {
+                                setState(() {
+                                  fontColor = color;
+                                });
+                              },
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('Close'),
+                            )
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+
+                ],
+              ],
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            // Handle create action
+          },
+          child: const Text('Create'),
+        ),
+      ],
+    );
+  }
+
+
+ void _addSubtaskField() {
+    setState(() {
+      controllers.add(TextEditingController());
+      showClearIcon.add(false);
+    });
+  }
+
+
+
+  void _removeSubtaskField(int index) {
+    setState(() {
+      controllers[index].dispose();
+      controllers.removeAt(index);
+      showClearIcon.removeAt(index);
+    });
   }
 
   Future<void> _selectStartDate(BuildContext context) async {
