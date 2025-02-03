@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-
+enum LineType { normal, bullet, number }
 class AddTaskScreen extends StatefulWidget {
   @override
   _AddTaskScreenState createState() => _AddTaskScreenState();
@@ -29,7 +29,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   List<String> listItems = [];
   bool isDescriptionFocused = false;
   TextEditingController taskNameController = TextEditingController();
-  TextEditingController descriptionController = TextEditingController();
+  List<TextLine> descriptionLines = [TextLine(type: LineType.normal)];
+  int? _currentFocusedDescriptionIndex;
   List<TextEditingController> controllers = [];
   List<bool> showClearIcon = [];
   final ImagePicker _picker = ImagePicker();
@@ -39,6 +40,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     return controllers.isEmpty ||
         controllers.every((controller) => controller.text.isEmpty);
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -325,7 +327,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
 
 
-
+  // Modify _buildDescriptionField
   Widget _buildDescriptionField() {
     return Focus(
       onFocusChange: (hasFocus) {
@@ -333,75 +335,113 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           isDescriptionFocused = hasFocus;
         });
       },
-      child: TextFormField(
-        controller: descriptionController,
-        maxLines: null,
-        textAlign: textAlign,
-        onChanged: (value) {
-          // Split the text into lines
-          List<String> lines = value.split('\n');
-          String updatedText = '';
-
-          for (int i = 0; i < lines.length; i++) {
-            String trimmedLine = lines[i].trim();
-
-            if (isBulletList) {
-              // Replace number if present and add bullet icon
-              if (trimmedLine.startsWith(RegExp(r'^\d+\.\s'))) {
-                trimmedLine = trimmedLine.replaceFirst(RegExp(r'^\d+\.\s'), '');
-              }
-              if (!trimmedLine.startsWith('•')) {
-                updatedText += '• $trimmedLine\n';
-              } else {
-                updatedText += '$trimmedLine\n';
-              }
-            } else if (isNumberList) {
-              // Replace bullet if present and add numbered list
-              if (trimmedLine.startsWith('•')) {
-                trimmedLine = trimmedLine.replaceFirst('•', '').trim();
-              }
-              if (!RegExp(r'^\d+\.\s').hasMatch(trimmedLine)) {
-                updatedText += '${i + 1}. $trimmedLine\n';
-              } else {
-                updatedText += '$trimmedLine\n';
-              }
-            } else {
-              // Remove any existing bullets or numbers if none is selected
-              if (trimmedLine.startsWith('•')) {
-                trimmedLine = trimmedLine.replaceFirst('•', '').trim();
-              } else if (trimmedLine.startsWith(RegExp(r'^\d+\.\s'))) {
-                trimmedLine = trimmedLine.replaceFirst(RegExp(r'^\d+\.\s'), '').trim();
-              }
-              updatedText += '$trimmedLine\n';
-            }
-          }
-
-          // Avoid unnecessary updates
-          if (descriptionController.text != updatedText.trim()) {
-            descriptionController.text = updatedText.trim();
-            descriptionController.selection = TextSelection.fromPosition(
-              TextPosition(offset: descriptionController.text.length),
-            );
-          }
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: descriptionLines.length,
+        itemBuilder: (context, index) {
+          return _buildDescriptionLine(index);
         },
-        decoration: const InputDecoration(
-          hintText: 'Description',
-          border: InputBorder.none,
-          hintStyle: TextStyle(
-              fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey),
-        ),
-        style: TextStyle(
-          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-          fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
-          decoration: isUnderline ? TextDecoration.underline : TextDecoration.none,
-          fontSize: fontSize,
-          color: fontColor,
-        ),
+      ),
+    );
+  }
+
+  Widget _buildDescriptionLine(int index) {
+    final line = descriptionLines[index];
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildPrefix(line, index),
+          Expanded(
+            child: TextField(
+              controller: line.controller,
+              focusNode: line.focusNode,
+              decoration: const InputDecoration(
+                hintText: 'Type here...',
+                border: InputBorder.none,
+                isDense: true,
+              ),
+              style: TextStyle(
+                fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+                fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
+                decoration: isUnderline ? TextDecoration.underline : TextDecoration.none,
+                fontSize: fontSize,
+                color: fontColor,
+              ),
+              textInputAction: index == descriptionLines.length - 1
+                  ? TextInputAction.done
+                  : TextInputAction.next,
+              onChanged: (value) => _handleDescriptionChange(index, value),
+              onSubmitted: (_) => _addDescriptionLine(index),
+              onTap: () => _currentFocusedDescriptionIndex = index,
+            ),
+          ),
+        ],
       ),
     );
   }
 
 
+  Widget _buildPrefix(TextLine line, int index) {
+    if (line.type == LineType.bullet) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8),
+        child: Text('•'),
+      );
+    }
+    if (line.type == LineType.number) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Text('${_calculateNumber(index)}.'),
+      );
+    }
+    return const SizedBox(width: 8);
+  }
+
+
+  int _calculateNumber(int index) {
+    int count = 0;
+    for (int i = index; i >= 0; i--) {
+      if (descriptionLines[i].type == LineType.number) {
+        count++;
+      } else {
+        break;
+      }
+    }
+    return count;
+  }
+
+  void _addDescriptionLine(int currentIndex) {
+    setState(() {
+      final newType = descriptionLines[currentIndex].type;
+      descriptionLines.insert(currentIndex + 1, TextLine(type: newType));
+
+      Future.delayed(Duration.zero, () {
+        descriptionLines[currentIndex + 1].focusNode.requestFocus();
+        _currentFocusedDescriptionIndex = currentIndex + 1;
+      });
+    });
+  }
+
+  void _handleDescriptionChange(int index, String value) {
+    if (value.isEmpty && index > 0) {
+      _removeDescriptionLine(index);
+    }
+  }
+
+  void _removeDescriptionLine(int index) {
+    setState(() {
+      final removedLine = descriptionLines.removeAt(index);
+      removedLine.focusNode.dispose();
+
+      if (index > 0) {
+        descriptionLines[index - 1].focusNode.requestFocus();
+        _currentFocusedDescriptionIndex = index - 1;
+      }
+    });
+  }
 
 
   Widget _buildBottomRow() {
@@ -522,33 +562,18 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     color: textAlign == TextAlign.right ? Colors.blue : Colors.black,
                   ),
 
-               /*   IconButton(
-                    icon: const Icon(Icons.format_list_bulleted),
-                    onPressed: () {
-                      setState(() {
-                        isBulletList = !isBulletList;
-                        isNumberList = false;
-                      });
-                    },
-                    color: isBulletList ? Colors.blue : Colors.black,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.format_list_numbered),
-                    onPressed: () {
-                      setState(() {
-                        isNumberList = !isNumberList;
-                        isBulletList = false;
-                      });
-                    },
-                    color: isNumberList ? Colors.blue : Colors.black,
-                  ),*/
+
                   IconButton(
                     icon: Icon(Icons.format_list_bulleted,
                         color: isBulletList ? Colors.blue : Colors.grey),
                     onPressed: () {
                       setState(() {
-                        isBulletList = true;
-                        isNumberList = false;
+                        if (_currentFocusedDescriptionIndex != null) {
+                          final currentLine = descriptionLines[_currentFocusedDescriptionIndex!];
+                          currentLine.type = currentLine.type == LineType.bullet
+                              ? LineType.normal
+                              : LineType.bullet;
+                        }
                       });
                     },
                   ),
@@ -557,8 +582,12 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         color: isNumberList ? Colors.blue : Colors.grey),
                     onPressed: () {
                       setState(() {
-                        isNumberList = true;
-                        isBulletList = false;
+                        if (_currentFocusedDescriptionIndex != null) {
+                          final currentLine = descriptionLines[_currentFocusedDescriptionIndex!];
+                          currentLine.type = currentLine.type == LineType.number
+                              ? LineType.normal
+                              : LineType.number;
+                        }
                       });
                     },
                   ),
@@ -750,6 +779,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     });
   }
 
+
   Future<void> _attachDocument() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -777,5 +807,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       DateTime(date.year, date.month, date.day, time.hour, time.minute);
       return DateFormat('EEE, MMM d, y - h:mm a').format(dateTime);
     }
+  }
+}
+
+class TextLine {
+  late TextEditingController controller;
+  late FocusNode focusNode;
+  LineType type;
+
+  TextLine({required this.type}) {
+    controller = TextEditingController();
+    focusNode = FocusNode();
   }
 }

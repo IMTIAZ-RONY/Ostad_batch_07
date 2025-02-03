@@ -53,6 +53,8 @@ dependencies:
   uuid:
   dotted_border:
   flutter_colorpicker:
+  fleather:
+  parchment:
 
 
 dev_dependencies:
