@@ -932,7 +932,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                 border: Border.all(
                                     color: Colors.green, width: 1.2),
                               ),
-                              child: const Padding(
+                                child: const Padding(
                                 padding: EdgeInsets.all(6.0),
                                 child: Icon(Icons.calendar_today,
                                     size: 18, color: Colors.grey),
