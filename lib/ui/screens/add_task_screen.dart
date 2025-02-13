@@ -1,4 +1,4 @@
-import 'dart:io';
+/*import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +10,6 @@ class AddTaskScreen extends StatefulWidget {
   @override
   _AddTaskScreenState createState() => _AddTaskScreenState();
 }
-
 class _AddTaskScreenState extends State<AddTaskScreen> {
   DateTime? startDate;
   DateTime? endDate;
@@ -35,13 +34,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   List<bool> showClearIcon = [];
   final ImagePicker _picker = ImagePicker();
   List<String> attachedFiles = [];
-
   bool _shouldShowAddSubtask() {
     return controllers.isEmpty ||
         controllers.every((controller) => controller.text.isEmpty);
   }
-
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -246,7 +242,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           style: TextStyle(color: Colors.grey)),
                     ),
                   const SizedBox(height: 20),
-// Loader for image and file picking
+                 // Loader for image and file picking
                   if (_isLoading)
                     const Center(child: CircularProgressIndicator()),
                   // Display attached files as cards
@@ -324,9 +320,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       ),
     );
   }
-
-
-
   // Modify _buildDescriptionField
   Widget _buildDescriptionField() {
     return Focus(
@@ -345,13 +338,12 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       ),
     );
   }
-
   Widget _buildDescriptionLine(int index) {
     final line = descriptionLines[index];
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 0.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,//start change center
         children: [
           _buildPrefix(line, index),
           Expanded(
@@ -362,6 +354,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 hintText: 'Type here...',
                 border: InputBorder.none,
                 isDense: true,
+                contentPadding:EdgeInsets.symmetric(vertical: 2) ,//add
               ),
               style: TextStyle(
                 fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
@@ -369,6 +362,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 decoration: isUnderline ? TextDecoration.underline : TextDecoration.none,
                 fontSize: fontSize,
                 color: fontColor,
+                height:1.2 ,
               ),
               textInputAction: index == descriptionLines.length - 1
                   ? TextInputAction.done
@@ -383,25 +377,38 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     );
   }
 
-
   Widget _buildPrefix(TextLine line, int index) {
     if (line.type == LineType.bullet) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8),
-        child: Text('•'),
+      return Padding(
+        //padding: EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.only(right:8.0),//add
+       child: Container(
+           alignment:Alignment.center ,
+           width: 24,
+           child: const Icon(Icons.brightness_1,size: 10,color:Colors.black54 ,)),//add
+       // child: Center(child: Text('•')),
       );
     }
     if (line.type == LineType.number) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Text('${_calculateNumber(index)}.'),
+      return SizedBox(
+        width:32,
+        child: Padding(
+         // padding: const EdgeInsets.symmetric(horizontal: 4),
+          padding: const EdgeInsets.only(right:8.0),//add
+          child: Align(
+            alignment:Alignment.center ,
+            child: Text('${_calculateNumber(index)}.',
+            textAlign:TextAlign.right ,//add
+            style: const TextStyle(color:Colors.black54),//add
+            ),
+          ),
+        ),
       );
     }
-    return const SizedBox(width: 8);
+    return const SizedBox(width: 4);
   }
 
-
-  int _calculateNumber(int index) {
+ int _calculateNumber(int index) {
     int count = 0;
     for (int i = index; i >= 0; i--) {
       if (descriptionLines[i].type == LineType.number) {
@@ -412,7 +419,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     }
     return count;
   }
-
   void _addDescriptionLine(int currentIndex) {
     setState(() {
       final newType = descriptionLines[currentIndex].type;
@@ -424,13 +430,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       });
     });
   }
-
   void _handleDescriptionChange(int index, String value) {
     if (value.isEmpty && index > 0) {
       _removeDescriptionLine(index);
     }
   }
-
   void _removeDescriptionLine(int index) {
     setState(() {
       final removedLine = descriptionLines.removeAt(index);
@@ -442,8 +446,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       }
     });
   }
-
-
   Widget _buildBottomRow() {
     return Row(
       children: [
@@ -561,9 +563,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     },
                     color: textAlign == TextAlign.right ? Colors.blue : Colors.black,
                   ),
-
-
-                  IconButton(
+                 IconButton(
                     icon: Icon(Icons.format_list_bulleted,
                         color: isBulletList ? Colors.blue : Colors.grey),
                     onPressed: () {
@@ -577,6 +577,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       });
                     },
                   ),
+
                   IconButton(
                     icon: Icon(Icons.format_list_numbered,
                         color: isNumberList ? Colors.blue : Colors.grey),
@@ -588,24 +589,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                               ? LineType.normal
                               : LineType.number;
                         }
-                      });
-                    },
-                  ),
-
-                  DropdownButton<double>(
-                    value: fontSize,
-                    items: [12.0, 14.0, 16.0, 18.0, 20.0]
-                        .map((size) => DropdownMenuItem(
-                      value: size,
-                      child: Text(
-                        '$size px',
-                        style: TextStyle(fontSize: size),
-                      ),
-                    ))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        fontSize = value!;
                       });
                     },
                   ),
@@ -652,17 +635,12 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       ],
     );
   }
-
-
- void _addSubtaskField() {
+  void _addSubtaskField() {
     setState(() {
       controllers.add(TextEditingController());
       showClearIcon.add(false);
     });
   }
-
-
-
   void _removeSubtaskField(int index) {
     setState(() {
       controllers[index].dispose();
@@ -670,7 +648,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       showClearIcon.removeAt(index);
     });
   }
-
   Future<void> _selectStartDate(BuildContext context) async {
     DateTime now = DateTime.now();
     DateTime? picked = await showDatePicker(
@@ -693,7 +670,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       _selectEndDate(context);
     }
   }
-
   Future<void> _selectEndDate(BuildContext context) async {
     DateTime now = DateTime.now();
     DateTime? picked = await showDatePicker(
@@ -714,7 +690,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       _selectEndTime(context);
     }
   }
-
   Future<void> _selectEndTime(BuildContext context) async {
     TimeOfDay? picked = await showTimePicker(
       context: context,
@@ -726,6 +701,688 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       });
     }
   }
+  Future<void> _attachFile(String filePath) async {
+    setState(() {
+      attachedFiles.add(filePath);
+      if (filePath.endsWith('.pdf') ||
+          filePath.endsWith('.doc') ||
+          filePath.endsWith('.docx')) {
+        fileCount++;
+      } else {
+        imageCount++;
+      }
+    });
+  }
+  void _removeAttachedFile(String filePath) {
+    setState(() {
+      attachedFiles.remove(filePath);
+      if (filePath.endsWith('.pdf') ||
+          filePath.endsWith('.doc') ||
+          filePath.endsWith('.docx')) {
+        fileCount--;
+      } else {
+        imageCount--;
+      }
+    });
+  }
+  Future<void> _pickImageFromCamera() async {
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    if (image != null) {
+      await _attachFile(image.path);
+    }
+    setState(() {
+      _isLoading = false; // Stop loading
+    });
+  }
+  Future<void> _pickImageFromGallery() async {
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      await _attachFile(image.path);
+    }
+    setState(() {
+      _isLoading = false; // Stop loading
+    });
+  }
+  Future<void> _attachDocument() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'doc', 'docx'],
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        String filePath = result.files.single.path!;
+        _attachFile(filePath);
+      } else {
+        print('No file selected');
+      }
+    } catch (e) {
+      print('Error picking file: $e');
+    }
+  }
+  String formatDateTime(DateTime? date, TimeOfDay? time) {
+    if (date == null) return 'Select Date';
+    if (time == null) {
+      return DateFormat('EEE, MMM d, y').format(date);
+    } else {
+      final dateTime =
+      DateTime(date.year, date.month, date.day, time.hour, time.minute);
+      return DateFormat('EEE, MMM d, y - h:mm a').format(dateTime);
+    }
+  }
+}
+ class TextLine {
+  late TextEditingController controller;
+  late FocusNode focusNode;
+  LineType type;
+
+  TextLine({required this.type}) {
+    controller = TextEditingController();
+    focusNode = FocusNode();
+  }
+}*/
+
+import 'dart:convert';
+import 'dart:io';
+import 'package:dotted_border/dotted_border.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:fleather/fleather.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+
+class AddTaskScreen extends StatefulWidget {
+  @override
+  _AddTaskScreenState createState() => _AddTaskScreenState();
+}
+class _AddTaskScreenState extends State<AddTaskScreen> {
+  DateTime? startDate;
+  TimeOfDay? startTime;
+  DateTime? endDate;
+  TimeOfDay? endTime;
+  int imageCount = 0; // Counter for images
+  int fileCount = 0; // Counter for files
+  bool _isLoading = false; // Loading state
+  bool isBold = false;
+  bool isItalic = false;
+  bool isUnderline = false;
+  TextAlign textAlign = TextAlign.left;
+  double fontSize = 16.0;
+  Color fontColor = Colors.black;
+  bool isBulletList = false;
+  bool isNumberList = false;
+  List<String> listItems = [];
+  bool isDescriptionFocused = false;
+  TextEditingController taskNameController = TextEditingController();
+  List<TextEditingController> controllers = [];
+  List<bool> showClearIcon = [];
+  final ImagePicker _picker = ImagePicker();
+  List<String> attachedFiles = [];
+  bool _shouldShowAddSubtask() {
+    return controllers.isEmpty ||
+        controllers.every((controller) => controller.text.isEmpty);
+  }
+  FleatherController? _controller;
+  final GlobalKey<EditorState> _editorKey = GlobalKey();
+  final FocusNode _editorFocusNode = FocusNode();
+  @override
+  void initState() {
+    super.initState();
+    _initController();
+  }
+
+  Future<void> _initController() async {
+    final heuristics = ParchmentHeuristics(
+      formatRules: [],
+      insertRules: [ForceNewlineForInsertsAroundInlineImageRule()],
+      deleteRules: [],
+    ).merge(ParchmentHeuristics.fallback);
+
+    try {
+      final doc = ParchmentDocument.fromJson(jsonDecode('{"ops":[{"insert":"\\n"}]}'), heuristics: heuristics);
+      _controller = FleatherController(document: doc);
+    } catch (err) {
+      _controller = FleatherController();
+    }
+    setState(() {});
+  }
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        appBar: AppBar(
+          title: const Text("TaskApp.."),
+        ),
+        body: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Private to you',
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      hintText: 'Task name...',
+                      border: InputBorder.none,
+                      hintStyle: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey),
+                    ),
+                    style: const TextStyle(
+                        fontSize: 28, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      const CircleAvatar(
+                        radius: 16,
+                        backgroundColor: Colors.pink,
+                        child:
+                        Text('IR', style: TextStyle(color: Colors.white)),
+                      ),
+                      const SizedBox(width: 8),
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Assigned to',
+                              style:
+                              TextStyle(color: Colors.grey, fontSize: 12)),
+                          Text('Imtiaz Rony',
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                      const Spacer(),
+                      GestureDetector(
+                        onTap: () => _selectStartDate(context),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            startDate == null
+                                ? DottedBorder(
+                              strokeWidth: 1.0,
+                              color: Colors.grey,
+                              borderType: BorderType.Circle,
+                              dashPattern: const [5, 3],
+                              child: const Padding(
+                                padding: EdgeInsets.all(5.0),
+                                child: Icon(Icons.calendar_today,
+                                    size: 18, color: Colors.grey),
+                              ),
+                            )
+                                : Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                    color: Colors.green, width: 1.2),
+                              ),
+                              child: const Padding(
+                                padding: EdgeInsets.all(6.0),
+                                child: Icon(Icons.calendar_today,
+                                    size: 18, color: Colors.grey),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Due date',
+                                  style: TextStyle(
+                                      color: startDate == null
+                                          ? Colors.grey
+                                          : Colors.black),
+                                ),
+                                if (startDate != null)
+                                  ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                        maxWidth:
+                                        MediaQuery.of(context).size.width *
+                                            0.3),
+                                    child: SingleChildScrollView(
+                                      scrollDirection:Axis.horizontal,
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            _formatDateTime(startDate, startTime),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                          const SizedBox(width:8 ,),
+                                          Text(
+                                            _formatDateTime(endDate, endTime),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      hintText: '+ Add Project',
+                      border: InputBorder.none,
+                      hintStyle: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey),
+                    ),
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  const SizedBox(height: 4),
+                  _buildDescriptionField(),
+                  const SizedBox(height: 2),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: controllers.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.check_circle_outline_sharp,
+                                size: 25, color: Colors.grey),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Focus(
+                                onFocusChange: (hasFocus) {
+                                  if (index < showClearIcon.length) {
+                                    setState(() {
+                                      showClearIcon[index] = hasFocus &&
+                                          controllers[index].text.isNotEmpty;
+                                    });
+                                  }
+                                },
+                                child: TextFormField(
+                                  controller: controllers[index],
+                                  onChanged: (value) {
+                                    setState(() {
+                                      showClearIcon[index] = value.isNotEmpty;
+                                    });
+                                  },
+                                  onFieldSubmitted: (value) {
+                                    if (value.isNotEmpty &&
+                                        index == controllers.length - 1) {
+                                      _addSubtaskField();
+                                    }
+                                  },
+                                  decoration:  const InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText:'Type here...',
+                                    hintStyle: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.grey),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (showClearIcon[index])
+                              IconButton(
+                                icon: const Icon(Icons.cancel, size: 20),
+                                onPressed: () {
+                                  _removeSubtaskField(index);
+                                },
+                              ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  if (_shouldShowAddSubtask() && controllers.isEmpty)
+                    TextButton(
+                      onPressed: _addSubtaskField,
+                      child: const Text('+ Add Subtask',
+                          style: TextStyle(color: Colors.grey)),
+                    ),
+                  const SizedBox(height: 20),
+                  // Loader for image and file picking
+                  if (_isLoading)
+                    const Center(child: CircularProgressIndicator()),
+                  // Display attached files as cards
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: attachedFiles.map((file) {
+                        final isPdf = file.endsWith('.pdf') ||
+                            file.endsWith('.doc') ||
+                            file.endsWith('.docx');
+                        return Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 0),
+                          child: Stack(
+                            children: [
+                              Card(
+                                elevation: 0,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    children: [
+                                      // Use a placeholder image for demonstration
+                                      isPdf
+                                          ? Row(
+                                        children: [
+                                          const Icon(Icons.picture_as_pdf,
+                                              size: 50,
+                                              color: Colors.red),
+                                          const SizedBox(width: 8),
+                                          SizedBox(
+                                            width: 80,
+                                            child: Text(
+                                              file.split('/').last,
+                                              maxLines: 1,
+                                              overflow:
+                                              TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                          : Image.file(File(file),
+                                          width: 100,
+                                          height: 100,
+                                          fit: BoxFit.cover),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                right: 1,
+                                top: 1,
+                                child: IconButton(
+                                  icon: const Icon(Icons.cancel_rounded,
+                                      color: Colors.red),
+                                  onPressed: () {
+                                    setState(() {
+                                      // attachedFiles.remove(file);
+                                      _removeAttachedFile(file);
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 160),
+                  _buildBottomRow(),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+  // Modify _buildDescriptionField
+  Widget _buildDescriptionField() {
+    return Focus(
+      onFocusChange: (hasFocus) {
+        setState(() {
+          isDescriptionFocused = hasFocus;
+        });
+      },
+      child: GestureDetector(
+        onTap: (){
+          _editorFocusNode.requestFocus();
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (!_editorFocusNode.hasFocus)
+              const Text('Description', style: TextStyle(fontSize: 16,color:Colors.grey ,fontWeight:FontWeight.w500 ,)),
+            if(!_editorFocusNode.hasFocus)
+              const SizedBox(height: 2),
+            Container(
+              decoration: BoxDecoration(
+                //border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(8),
+              ),
+
+              child: Column(
+                children: [
+                  if(_editorFocusNode.hasFocus)
+                    if (isDescriptionFocused)
+                      FleatherToolbar.basic(controller: _controller!, editorKey: _editorKey),
+                  FleatherEditor(
+                    controller: _controller!,
+                    focusNode: _editorFocusNode,
+                    editorKey: _editorKey,
+                    padding: const EdgeInsets.all(2),
+                    embedBuilder: _embedBuilder,
+                    minHeight: 50,
+                    maxHeight:100,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _embedBuilder(BuildContext context, EmbedNode node) {
+    if (node.value.type == 'image') {
+      final sourceType = node.value.data['source_type'];
+      ImageProvider? image;
+      if (sourceType == 'file') {
+        image = FileImage(File(node.value.data['source']));
+      } else if (sourceType == 'url') {
+        image = NetworkImage(node.value.data['source']);
+      }
+      if (image != null) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Image(image: image, width: 200, height: 200, fit: BoxFit.cover),
+        );
+      }
+    }
+    return defaultFleatherEmbedBuilder(context, node);
+  }
+
+  Widget _buildBottomRow() {
+    return Row(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.camera_alt),
+                  onPressed: _pickImageFromCamera,
+                ),
+                Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.photo_library),
+                      onPressed: _pickImageFromGallery,
+                    ),
+                    if (imageCount > 0)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: CircleAvatar(
+                          radius: 10,
+                          backgroundColor: Colors.red,
+                          child: Text(
+                            '$imageCount',
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 12),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.attach_file),
+                      onPressed: _attachDocument,
+                    ),
+                    if (fileCount > 0)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: CircleAvatar(
+                          radius: 10,
+                          backgroundColor: Colors.red,
+                          child: Text(
+                            '$fileCount',
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 12),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.group_add),
+                  onPressed: () {
+                    // Collaborator action
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            // Handle create action
+          },
+          child: const Text('Create'),
+        ),
+      ],
+    );
+  }
+  void _addSubtaskField() {
+    setState(() {
+      controllers.add(TextEditingController());
+      showClearIcon.add(false);
+    });
+  }
+  void _removeSubtaskField(int index) {
+    setState(() {
+      controllers[index].dispose();
+      controllers.removeAt(index);
+      showClearIcon.removeAt(index);
+    });
+  }
+  String _formatDateTime(DateTime? date, TimeOfDay? time) {
+    if (date == null) return 'Select Date';
+    if (time == null) {
+      return DateFormat('EEE, MMM d, y').format(date);
+    } else {
+      final dateTime =
+      DateTime(date.year, date.month, date.day, time.hour, time.minute);
+      return DateFormat('EEE, MMM d, y - h:mm a').format(dateTime);
+    }
+  }
+  Future<void> _selectStartDate(BuildContext context) async {
+    DateTime now = DateTime.now();
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: startDate ?? now,
+      firstDate: DateTime(now.year - 50),
+      lastDate: DateTime(now.year + 50),
+      helpText: 'Select start date.',
+      initialDatePickerMode: DatePickerMode.day,
+      // Start with day picker
+      fieldHintText: 'MM/DD/YYYY',
+      // Hint for manual input
+      fieldLabelText: 'Enter your 1st date.', // Label for manual input
+    );
+
+    if (picked != null) {
+      setState(() {
+        startDate = picked;
+      });
+      _selectStartTime(context);
+    }
+  }
+  Future<void> _selectStartTime(BuildContext context) async {
+    TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: startTime ?? TimeOfDay.now(),
+      helpText:"Select start time.",
+    );
+    if (picked != null) {
+      setState(() {
+        startTime = picked;
+      });
+      _selectEndDate(context);
+    }
+  }
+  Future<void> _selectEndDate(BuildContext context) async {
+    DateTime now = DateTime.now();
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: endDate ?? now,
+      firstDate: DateTime(now.year - 50),
+      lastDate: DateTime(now.year + 50),
+      helpText: 'Select end date.',
+      initialDatePickerMode: DatePickerMode.day,
+      fieldHintText: "MM/DD/YYYY",
+      fieldLabelText: "Enter your 2nd date.",
+    );
+
+    if (picked != null) {
+      setState(() {
+        endDate = picked;
+      });
+      _selectEndTime(context);
+    }
+  }
+  Future<void> _selectEndTime(BuildContext context) async {
+    TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: endTime ?? TimeOfDay.now(),
+      helpText:"Select end time.",
+    );
+    if (picked != null) {
+      setState(() {
+        endTime = picked;
+      });
+    }
+  }
+
 
   Future<void> _attachFile(String filePath) async {
     setState(() {
@@ -739,7 +1396,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       }
     });
   }
-
   void _removeAttachedFile(String filePath) {
     setState(() {
       attachedFiles.remove(filePath);
@@ -752,7 +1408,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       }
     });
   }
-
   Future<void> _pickImageFromCamera() async {
     setState(() {
       _isLoading = true; // Start loading
@@ -765,7 +1420,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       _isLoading = false; // Stop loading
     });
   }
-
   Future<void> _pickImageFromGallery() async {
     setState(() {
       _isLoading = true; // Start loading
@@ -778,8 +1432,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       _isLoading = false; // Stop loading
     });
   }
-
-
   Future<void> _attachDocument() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -798,25 +1450,34 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     }
   }
 
-  String formatDateTime(DateTime? date, TimeOfDay? time) {
-    if (date == null) return 'Select Date';
-    if (time == null) {
-      return DateFormat('EEE, MMM d, y').format(date);
-    } else {
-      final dateTime =
-      DateTime(date.year, date.month, date.day, time.hour, time.minute);
-      return DateFormat('EEE, MMM d, y - h:mm a').format(dateTime);
-    }
-  }
 }
+class ForceNewlineForInsertsAroundInlineImageRule extends InsertRule {
+  @override
+  Delta? apply(Delta document, int index, Object data) {
+    if (data is! String) return null;
+    final iter = DeltaIterator(document);
+    final previous = iter.skip(index);
+    final target = iter.next();
+    final cursorBeforeInlineEmbed = _isInlineImage(target.data);
+    final cursorAfterInlineEmbed = previous != null &&
+        _isInlineImage(previous.data);
 
-class TextLine {
-  late TextEditingController controller;
-  late FocusNode focusNode;
-  LineType type;
-
-  TextLine({required this.type}) {
-    controller = TextEditingController();
-    focusNode = FocusNode();
+    if (cursorBeforeInlineEmbed || cursorAfterInlineEmbed) {
+      final delta = Delta()
+        ..retain(index);
+      if (cursorAfterInlineEmbed && !data.startsWith('\n')) delta.insert('\n');
+      delta.insert(data);
+      if (cursorBeforeInlineEmbed && !data.endsWith('\n')) delta.insert('\n');
+      return delta;
+    }
+    return null;
+  }
+  bool _isInlineImage(Object data) {
+    if (data is EmbeddableObject) return data.type == 'image' && data.inline;
+    if (data is Map) {
+      return data[EmbeddableObject.kTypeKey] == 'image' &&
+          data[EmbeddableObject.kInlineKey];
+    }
+    return false;
   }
 }

@@ -21,6 +21,12 @@ class _TaskManagersAppState extends State<TaskManagersApp> {
       builder: (context, child) {
         return GetMaterialApp(
           debugShowCheckedModeBanner: false,
+          theme:ThemeData(
+            textSelectionTheme:TextSelectionThemeData(
+              cursorColor:Colors.blue,
+              selectionColor:Colors.blue.withOpacity (0.3) ,
+            ) ,
+          ),
           home: HomeScreen(),
         );
       },
