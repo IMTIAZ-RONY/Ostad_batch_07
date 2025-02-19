@@ -787,21 +787,34 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     focusNode = FocusNode();
   }
 }*/
-
+//2nd
 import 'dart:convert';
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fleather/fleather.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+
+import 'home_screens.dart';
 
 class AddTaskScreen extends StatefulWidget {
   @override
   _AddTaskScreenState createState() => _AddTaskScreenState();
 }
 class _AddTaskScreenState extends State<AddTaskScreen> {
+  // GetStorage for local storage
+  final GetStorage _storage = GetStorage();
+
+  // Project-related controllers and variables
+  TextEditingController _projectController = TextEditingController();
+  FocusNode _projectFocusNode = FocusNode();
+  List<String> savedProjects = [];
+  List<String> filteredProjects = [];
+  bool showProjectSuggestions = false;
+  //others
   DateTime? startDate;
   TimeOfDay? startTime;
   DateTime? endDate;
@@ -831,10 +844,84 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   FleatherController? _controller;
   final GlobalKey<EditorState> _editorKey = GlobalKey();
   final FocusNode _editorFocusNode = FocusNode();
-  @override
-  void initState() {
-    super.initState();
-    _initController();
+
+  // Load projects from storage
+  void _loadProjects() {
+    List<dynamic>? storedProjects = _storage.read<List>('projects');
+    if (storedProjects != null) {
+      setState(() {
+        savedProjects = List<String>.from(storedProjects);
+      });
+    }
+  }
+
+  // Save new project avoiding duplicates
+  void _saveProject(String projectName) {
+    if (projectName.isEmpty || savedProjects.contains(projectName)) return;
+    setState(() {
+      savedProjects.add(projectName);
+      _storage.write('projects', savedProjects);
+    });
+  }
+
+
+  // Update this method to properly filter projects and display suggestions
+  /*void _onProjectChanged(String input) {
+    setState(() {
+      if (input.isEmpty) {
+        filteredProjects = savedProjects.toList();
+      } else {
+        filteredProjects = savedProjects
+            .where((project) => project.toLowerCase().contains(input.toLowerCase()))
+            .toList();
+      }
+
+      if (filteredProjects.isEmpty) {
+        filteredProjects = ["No project name available here"];
+      } else {
+        // Add "Add new project" option if input doesn't match existing projects
+        if (!savedProjects.any((project) => project.toLowerCase() == input.toLowerCase())) {
+          filteredProjects = [ input, ...filteredProjects];
+        }
+      }
+
+      showProjectSuggestions = input.isNotEmpty || filteredProjects.isNotEmpty;
+    });
+  }*/
+  void _onProjectChanged(String input) {
+    setState(() {
+      if (savedProjects.isEmpty) { // Only show message when no projects exist
+        filteredProjects = ["No project name available here"];
+        showProjectSuggestions = true;
+        return;
+      }
+
+      if (input.isEmpty) {
+        filteredProjects = savedProjects.toList();
+      } else {
+        filteredProjects = savedProjects
+            .where((project) => project.toLowerCase().contains(input.toLowerCase()))
+            .toList();
+
+        // Add "Add new project" option if no matches
+        if (filteredProjects.isEmpty) {
+          filteredProjects = [input];
+        }
+      }
+
+      showProjectSuggestions = true;
+    });
+  }
+  // Update _selectSuggestion method
+  void _selectSuggestion(String selection) {
+    if (selection.startsWith("Add new project: ")) {
+      final newProject = selection.replaceFirst("Add new project: ", "").replaceAll("'", "");
+      _saveProject(newProject);
+      _projectController.text = newProject;
+    } else if (selection != "No project name available here") {
+      _projectController.text = selection;
+    }
+    setState(() => showProjectSuggestions = false);
   }
 
   Future<void> _initController() async {
@@ -851,6 +938,32 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       _controller = FleatherController();
     }
     setState(() {});
+  }
+  @override
+  void initState() {
+    super.initState();
+    _initController();
+    _loadProjects();
+    // Focus listener for project field
+    _projectFocusNode.addListener(() {
+      if (_projectFocusNode.hasFocus) {
+        setState(() {
+          filteredProjects = savedProjects;
+          showProjectSuggestions = true;
+        });
+      } else {
+        setState(() {
+          showProjectSuggestions = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _projectController.dispose();
+    _projectFocusNode.dispose();
+    super.dispose();
   }
   @override
   Widget build(BuildContext context) {
@@ -932,7 +1045,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                 border: Border.all(
                                     color: Colors.green, width: 1.2),
                               ),
-                                child: const Padding(
+                              child: const Padding(
                                 padding: EdgeInsets.all(6.0),
                                 child: Icon(Icons.calendar_today,
                                     size: 18, color: Colors.grey),
@@ -988,17 +1101,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      hintText: '+ Add Project',
-                      border: InputBorder.none,
-                      hintStyle: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey),
-                    ),
-                    style: const TextStyle(fontSize: 14),
-                  ),
+                  _buildAddProject(),
                   const SizedBox(height: 4),
                   _buildDescriptionField(),
                   const SizedBox(height: 2),
@@ -1284,11 +1387,108 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           ),
         ),
         TextButton(
-          onPressed: () {
-            // Handle create action
-          },
+          onPressed: _createTask,
           child: const Text('Create'),
         ),
+
+
+      ],
+    );
+  }
+  void _createTask() {
+    String taskName = taskNameController.text.trim();
+    String projectName = _projectController.text.trim();
+    String description = _controller?.document.toPlainText().trim() ?? '';
+
+    // Check if at least one field is filled
+    if (taskName.isEmpty && projectName.isEmpty && description.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill at least one field')),
+      );
+      return;
+    }
+
+    // Save task to GetStorage
+    List<dynamic> tasks = _storage.read<List>('tasks') ?? [];
+    tasks.add({
+      'taskName': taskName.isEmpty ? 'Untitled Task' : taskName,
+      'projectName': projectName.isEmpty ? 'No Project' : projectName,
+      'description': description.isEmpty ? 'No Description' : description,
+      'createdAt': DateTime.now().toString(),
+    });
+    _storage.write('tasks', tasks);
+
+    // Show confirmation
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Task Created Successfully!')),
+    );
+
+    // Clear fields
+    taskNameController.clear();
+    _projectController.clear();
+    _controller?.replaceText(0, _controller!.document.length - 1, '');
+  }
+
+  // Update _buildAddProject method
+ Widget _buildAddProject() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextFormField(
+          controller: _projectController,
+          focusNode: _projectFocusNode,
+          onChanged: _onProjectChanged,
+          onFieldSubmitted: (value) {
+            _saveProject(value.trim());
+            _projectController.clear();
+            FocusScope.of(context).unfocus();
+          },
+          decoration: const InputDecoration(
+            hintText: '+ Add Project',
+            border: InputBorder.none,
+            hintStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey
+            ),
+          ),
+        ),
+        if (showProjectSuggestions)
+          Container(
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  blurRadius: 5,
+                  spreadRadius: 1,
+                )
+              ],
+            ),
+            child: ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: filteredProjects.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  dense: true,
+                  title: Text(
+                    filteredProjects[index],
+                    style: TextStyle(
+                      color: filteredProjects[index] == "No project name available here"
+                          ? Colors.grey
+                          : Colors.black,
+                      fontStyle: filteredProjects[index] == "No project name available here"
+                          ? FontStyle.italic
+                          : FontStyle.normal,
+                    ),
+                  ),
+                  onTap: () => _selectSuggestion(filteredProjects[index]),
+                );
+              },
+            ),
+          ),
       ],
     );
   }
@@ -1298,6 +1498,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       showClearIcon.add(false);
     });
   }
+
   void _removeSubtaskField(int index) {
     setState(() {
       controllers[index].dispose();

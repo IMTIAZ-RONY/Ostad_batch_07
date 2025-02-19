@@ -270,7 +270,7 @@ class TaskDetailScreen extends StatelessWidget {
   }
 }*/
 
-import 'dart:io';
+/*import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -470,7 +470,55 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           : Text(controller.text),
     );
   }
-}
+}*/
 
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+class TaskDetailsScreen extends StatelessWidget {
+  final Map<String, dynamic> task;
+
+  TaskDetailsScreen({required this.task});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(task['taskName'])),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildDetailItem('Project Name', task['projectName']),
+            const Divider(),
+            _buildDetailItem('Description', task['description']),
+            const Divider(),
+            _buildDetailItem('Created At',
+                DateFormat('MMM dd, yyyy - hh:mm a').format(DateTime.now())),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailItem(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey[600],
+          )),
+          const SizedBox(height: 4),
+          Text(value.isEmpty ? 'No $title' : value,
+              style: const TextStyle(fontSize: 16)),
+        ],
+      ),
+    );
+  }
+}
 
 
