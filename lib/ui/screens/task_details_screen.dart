@@ -478,7 +478,7 @@ import 'package:intl/intl.dart';
 class TaskDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> task;
 
-  TaskDetailsScreen({required this.task});
+  const TaskDetailsScreen({super.key, required this.task});
 
   @override
   Widget build(BuildContext context) {
