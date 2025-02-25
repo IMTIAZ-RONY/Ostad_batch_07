@@ -13,6 +13,7 @@ class AddTaskScreen extends StatefulWidget {
   @override
   _AddTaskScreenState createState() => _AddTaskScreenState();
 }
+
 class _AddTaskScreenState extends State<AddTaskScreen> {
   // GetStorage for local storage
   final GetStorage _storage = GetStorage();
@@ -23,6 +24,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   List<String> savedProjects = [];
   List<String> filteredProjects = [];
   bool showProjectSuggestions = false;
+  bool showNoProjectMessage = false;
+
   //others
   DateTime? startDate;
   TimeOfDay? startTime;
@@ -46,13 +49,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   List<bool> showClearIcon = [];
   final ImagePicker _picker = ImagePicker();
   List<String> attachedFiles = [];
+
   bool _shouldShowAddSubtask() {
     return controllers.isEmpty ||
         controllers.every((controller) => controller.text.isEmpty);
   }
+
   FleatherController? _controller;
   final GlobalKey<EditorState> _editorKey = GlobalKey();
   final FocusNode _editorFocusNode = FocusNode();
+
   // Load projects from storage
   void _loadProjects() {
     List<dynamic>? storedProjects = _storage.read<List>('projects');
@@ -62,45 +68,42 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       });
     }
   }
+
   // Save new project avoiding duplicates
   void _saveProject(String projectName) {
     if (projectName.isEmpty || savedProjects.contains(projectName)) return;
     setState(() {
       savedProjects.add(projectName);
       _storage.write('projects', savedProjects);
+     // filteredProjects = savedProjects;//add
     });
   }
+
   // Update this method to properly filter projects and display suggestions
   void _onProjectChanged(String input) {
     setState(() {
-      if (savedProjects.isEmpty) {
-        filteredProjects = ["No project name available here"];
-        showProjectSuggestions = true;
-        return;
+      if (input.isEmpty) {
+        if (savedProjects.isEmpty) {
+          showNoProjectMessage = true;
+          filteredProjects = [];
+        } else {
+          showNoProjectMessage = false;
+          filteredProjects = savedProjects;
+        }
+
+          } else {
+        showNoProjectMessage = false;
+        filteredProjects = savedProjects
+            .where((project) => project.toLowerCase().contains(input.toLowerCase()))
+            .toList();
+        showProjectSuggestions=true;//টাইপ করার সময় সাজেশন দেখানো হবে
       }
-
-      filteredProjects = savedProjects
-          .where((project) => project.toLowerCase().contains(input.toLowerCase()))
-          .toList();
-
-      // if (filteredProjects.isEmpty && input.isNotEmpty) {
-      //   filteredProjects = [ input];
-      // }
-      showProjectSuggestions = input.isNotEmpty && filteredProjects.isEmpty ? false : true;
-      //showProjectSuggestions = true;
     });
   }
 
   // Update _selectSuggestion method
-
   void _selectSuggestion(String selection) {
-    if (selection.startsWith("Add new project: ")) {
-      final newProject = selection.replaceFirst("Add new project: ", "").replaceAll("'", "");
-    //  _saveProject(newProject);
-      _projectController.text = newProject;
-    } else if (selection != "No project name available here") {
-      _projectController.text = selection;
-    }
+    _projectController.text = selection;
     setState(() => showProjectSuggestions = false);
   }
 
@@ -112,13 +115,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     ).merge(ParchmentHeuristics.fallback);
 
     try {
-      final doc = ParchmentDocument.fromJson(jsonDecode('{"ops":[{"insert":"\\n"}]}'), heuristics: heuristics);
+      final doc = ParchmentDocument.fromJson(
+          jsonDecode('{"ops":[{"insert":"\\n"}]}'),
+          heuristics: heuristics);
       _controller = FleatherController(document: doc);
     } catch (err) {
       _controller = FleatherController();
     }
     setState(() {});
   }
+
   @override
   void initState() {
     super.initState();
@@ -127,13 +133,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     // Focus listener for project field
     _projectFocusNode.addListener(() {
       if (_projectFocusNode.hasFocus) {
-        setState(() {
-          filteredProjects = savedProjects;
-          showProjectSuggestions = true;
-        });
+        _onProjectChanged(_projectController.text);
       } else {
         setState(() {
           showProjectSuggestions = false;
+          showNoProjectMessage = false;
         });
       }
     });
@@ -145,6 +149,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     _projectFocusNode.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -187,7 +192,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         radius: 16,
                         backgroundColor: Colors.pink,
                         child:
-                        Text('IR', style: TextStyle(color: Colors.white)),
+                            Text('IR', style: TextStyle(color: Colors.white)),
                       ),
                       const SizedBox(width: 8),
                       const Column(
@@ -195,7 +200,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         children: [
                           Text('Assigned to',
                               style:
-                              TextStyle(color: Colors.grey, fontSize: 12)),
+                                  TextStyle(color: Colors.grey, fontSize: 12)),
                           Text('Imtiaz Rony',
                               style: TextStyle(
                                   fontSize: 14, fontWeight: FontWeight.w500)),
@@ -209,28 +214,28 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                           children: [
                             startDate == null
                                 ? DottedBorder(
-                                strokeWidth: 1.0,
-                                color: Colors.grey,
-                                borderType: BorderType.Circle,
-                                dashPattern: const [5, 3],
-                                child: const Padding(
-                                padding: EdgeInsets.all(5.0),
-                                child: Icon(Icons.calendar_today,
-                                    size: 18, color: Colors.grey),
-                              ),
-                            )
+                                    strokeWidth: 1.0,
+                                    color: Colors.grey,
+                                    borderType: BorderType.Circle,
+                                    dashPattern: const [5, 3],
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(5.0),
+                                      child: Icon(Icons.calendar_today,
+                                          size: 18, color: Colors.grey),
+                                    ),
+                                  )
                                 : Container(
-                                decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                    color: Colors.green, width: 1.2),
-                              ),
-                                child: const Padding(
-                                padding: EdgeInsets.all(6.0),
-                                child: Icon(Icons.calendar_today,
-                                    size: 18, color: Colors.grey),
-                              ),
-                            ),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                          color: Colors.green, width: 1.2),
+                                    ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(6.0),
+                                      child: Icon(Icons.calendar_today,
+                                          size: 18, color: Colors.grey),
+                                    ),
+                                  ),
                             const SizedBox(width: 6),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,21 +251,24 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                   ConstrainedBox(
                                     constraints: BoxConstraints(
                                         maxWidth:
-                                        MediaQuery.of(context).size.width *
-                                            0.3),
+                                            MediaQuery.of(context).size.width *
+                                                0.3),
                                     child: SingleChildScrollView(
-                                      scrollDirection:Axis.horizontal,
+                                      scrollDirection: Axis.horizontal,
                                       child: Row(
                                         children: [
                                           Text(
-                                            _formatDateTime(startDate, startTime),
+                                            _formatDateTime(
+                                                startDate, startTime),
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 1,
                                             style: const TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w500),
                                           ),
-                                          const SizedBox(width:8 ,),
+                                          const SizedBox(
+                                            width: 8,
+                                          ),
                                           Text(
                                             _formatDateTime(endDate, endTime),
                                             overflow: TextOverflow.ellipsis,
@@ -325,9 +333,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                       _addSubtaskField();
                                     }
                                   },
-                                  decoration:  const InputDecoration(
+                                  decoration: const InputDecoration(
                                     border: InputBorder.none,
-                                    hintText:'Type here...',
+                                    hintText: 'Type here...',
                                     hintStyle: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
@@ -379,26 +387,26 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                       // Use a placeholder image for demonstration
                                       isPdf
                                           ? Row(
-                                        children: [
-                                          const Icon(Icons.picture_as_pdf,
-                                              size: 50,
-                                              color: Colors.red),
-                                          const SizedBox(width: 8),
-                                          SizedBox(
-                                            width: 80,
-                                            child: Text(
-                                              file.split('/').last,
-                                              maxLines: 1,
-                                              overflow:
-                                              TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                        ],
-                                      )
+                                              children: [
+                                                const Icon(Icons.picture_as_pdf,
+                                                    size: 50,
+                                                    color: Colors.red),
+                                                const SizedBox(width: 8),
+                                                SizedBox(
+                                                  width: 80,
+                                                  child: Text(
+                                                    file.split('/').last,
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
+                                            )
                                           : Image.file(File(file),
-                                          width: 100,
-                                          height: 100,
-                                          fit: BoxFit.cover),
+                                              width: 100,
+                                              height: 100,
+                                              fit: BoxFit.cover),
                                     ],
                                   ),
                                 ),
@@ -433,68 +441,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       ),
     );
   }
+
   // Update _buildAddProject method
- /* Widget _buildAddProject() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextFormField(
-          controller: _projectController,
-          focusNode: _projectFocusNode,
-          onChanged: _onProjectChanged,
-          onFieldSubmitted: (value) {
-            FocusScope.of(context).unfocus();
-          },
-          decoration: const InputDecoration(
-            hintText: '+ Add Project',
-            border: InputBorder.none,
-            hintStyle: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey
-            ),
-          ),
-        ),
-        if (showProjectSuggestions)
-          Container(
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.3),
-                  blurRadius: 5,
-                  spreadRadius: 1,
-                )
-              ],
-            ),
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: filteredProjects.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  dense: true,
-                  title: Text(
-                    filteredProjects[index],
-                    style: TextStyle(
-                      color: filteredProjects[index] == "No project name available here"
-                          ? Colors.grey
-                          : Colors.black,
-                      fontStyle: filteredProjects[index] == "No project name available here"
-                          ? FontStyle.italic
-                          : FontStyle.normal,
-                    ),
-                  ),
-                  onTap: () => _selectSuggestion(filteredProjects[index]),
-                );
-              },
-            ),
-          ),
-      ],
-    );
-  }*/
-  // 2. _buildAddProject উইজেটে Create বাটন যোগ করুন
   Widget _buildAddProject() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -507,83 +455,81 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             hintText: '+ Add Project',
             border: InputBorder.none,
             hintStyle: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey
-            ),
+                fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey),
           ),
         ),
-        if (showProjectSuggestions && filteredProjects.isNotEmpty)
-          Container(
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.3),
-                  blurRadius: 5,
-                  spreadRadius: 1,
-                )
-              ],
-            ),
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: filteredProjects.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  dense: true,
-                  title: Text(filteredProjects[index]),
-                  onTap: () => _selectSuggestion(filteredProjects[index]),
-                );
-              },
-            ),
+        if (showProjectSuggestions)
+          Column(
+            children: [
+              if (showNoProjectMessage)
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text("No project name here, please add.",style:TextStyle(backgroundColor:Colors.white54 ) ,),
+                ),
+              if (!showNoProjectMessage && filteredProjects.isNotEmpty)
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        blurRadius: 5,
+                        spreadRadius: 1,
+                      )
+                    ],
+                  ),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: filteredProjects.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        dense: true,
+                        title: Text(filteredProjects[index]),
+                        onTap: () => _selectSuggestion(filteredProjects[index]),
+                      );
+                    },
+                  ),
+                ),
+              filteredProjects.isEmpty && _projectController.text.isNotEmpty
+                  ? TextButton(
+                onPressed: () {
+                  final newProject = _projectController.text.trim();
+                  if (newProject.isNotEmpty) {
+                    bool alreadyExists = savedProjects.contains(newProject);
+                    if (!alreadyExists) {
+                      _saveProject(newProject);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Project added successfully!'),
+                          backgroundColor: Colors.green,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Project already exists'),
+                          backgroundColor: Colors.orange,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                    setState(() {
+                      showProjectSuggestions = false;  // সেভ করার পর সাজেশন বন্ধ
+                    });
+                  }
+                },
+                  child: const Text('Create project name'),
+              )
+                  : const SizedBox.shrink(),
+            ],
           ),
-        if (_projectController.text.isNotEmpty && filteredProjects.isEmpty)
-         /* TextButton(
-            onPressed: () {
-              final newProject = _projectController.text.trim();
-              if (newProject.isNotEmpty) {
-                _saveProject(newProject);
-                _loadProjects();
-                setState(() {
-                  showProjectSuggestions = false;
-                });
-              }
-            },
-            child: const Text('Create project name'),
-          ),*/
-    TextButton(
-    onPressed: () {
-    final newProject = _projectController.text.trim();
-    if (newProject.isNotEmpty) {
-    _saveProject(newProject); // Save the project
-    _loadProjects(); // Reload the list
-
-    // Check if the project was actually added
-    final isAdded = filteredProjects.contains(newProject);
-
-    setState(() {
-    showProjectSuggestions = false;
-    });
-
-    // Show success or failure message
-    ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-    content: Text(isAdded ? 'Failed to add project' :'Project added successfully!' ),
-    backgroundColor: isAdded ? Colors.red : Colors.green,
-    duration: const Duration(seconds: 2),
-    ),
-    );
-    }
-    },
-    child: const Text('Create project name'),
-    ),
-
-
       ],
     );
   }
+
   // Modify _buildDescriptionField
   Widget _buildDescriptionField() {
     return Focus(
@@ -593,27 +539,31 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         });
       },
       child: GestureDetector(
-        onTap: (){
+        onTap: () {
           _editorFocusNode.requestFocus();
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (!_editorFocusNode.hasFocus)
-              const Text('Description', style: TextStyle(fontSize: 16,color:Colors.grey ,fontWeight:FontWeight.w500 ,)),
-            if(!_editorFocusNode.hasFocus)
-              const SizedBox(height: 2),
+              const Text('Description',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w500,
+                  )),
+            if (!_editorFocusNode.hasFocus) const SizedBox(height: 2),
             Container(
               decoration: BoxDecoration(
                 //border: Border.all(color: Colors.grey.shade300),
                 borderRadius: BorderRadius.circular(8),
               ),
-
               child: Column(
                 children: [
-                  if(_editorFocusNode.hasFocus)
+                  if (_editorFocusNode.hasFocus)
                     if (isDescriptionFocused)
-                      FleatherToolbar.basic(controller: _controller!, editorKey: _editorKey),
+                      FleatherToolbar.basic(
+                          controller: _controller!, editorKey: _editorKey),
                   FleatherEditor(
                     controller: _controller!,
                     focusNode: _editorFocusNode,
@@ -621,7 +571,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     padding: const EdgeInsets.all(2),
                     embedBuilder: _embedBuilder,
                     minHeight: 50,
-                    maxHeight:100,
+                    maxHeight: 100,
                   ),
                 ],
               ),
@@ -631,6 +581,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       ),
     );
   }
+
   Widget _embedBuilder(BuildContext context, EmbedNode node) {
     if (node.value.type == 'image') {
       final sourceType = node.value.data['source_type'];
@@ -643,12 +594,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       if (image != null) {
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Image(image: image, width: 200, height: 200, fit: BoxFit.cover),
+          child:
+              Image(image: image, width: 200, height: 200, fit: BoxFit.cover),
         );
       }
     }
     return defaultFleatherEmbedBuilder(context, node);
   }
+
   Widget _buildBottomRow() {
     return Row(
       children: [
@@ -722,6 +675,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       ],
     );
   }
+
   /*void _createTask() {
     String taskName = taskNameController.text.trim();
     String projectName = _projectController.text.trim();
@@ -778,7 +732,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     tasks.add({
       'taskName': taskName.isEmpty ? 'Untitled Task' : taskName,
       'projectName': projectName.isEmpty ? 'No Project' : projectName,
-      'description': _controller?.document.toPlainText().trim() ?? 'No Description',
+      'description':
+          _controller?.document.toPlainText().trim() ?? 'No Description',
       'createdAt': DateTime.now().toString(),
     });
     _storage.write('tasks', tasks);
@@ -787,15 +742,17 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_) => HomeScreen()),
-          (route) => false,
+      (route) => false,
     );
   }
+
   void _addSubtaskField() {
     setState(() {
       controllers.add(TextEditingController());
       showClearIcon.add(false);
     });
   }
+
   void _removeSubtaskField(int index) {
     setState(() {
       controllers[index].dispose();
@@ -803,16 +760,18 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       showClearIcon.removeAt(index);
     });
   }
+
   String _formatDateTime(DateTime? date, TimeOfDay? time) {
     if (date == null) return 'Select Date';
     if (time == null) {
       return DateFormat('EEE, MMM d, y').format(date);
     } else {
       final dateTime =
-      DateTime(date.year, date.month, date.day, time.hour, time.minute);
+          DateTime(date.year, date.month, date.day, time.hour, time.minute);
       return DateFormat('EEE, MMM d, y - h:mm a').format(dateTime);
     }
   }
+
   Future<void> _selectStartDate(BuildContext context) async {
     DateTime now = DateTime.now();
     DateTime? picked = await showDatePicker(
@@ -835,11 +794,12 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       _selectStartTime(context);
     }
   }
+
   Future<void> _selectStartTime(BuildContext context) async {
     TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: startTime ?? TimeOfDay.now(),
-      helpText:"Select start time.",
+      helpText: "Select start time.",
     );
     if (picked != null) {
       setState(() {
@@ -848,6 +808,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       _selectEndDate(context);
     }
   }
+
   Future<void> _selectEndDate(BuildContext context) async {
     DateTime now = DateTime.now();
     DateTime? picked = await showDatePicker(
@@ -868,11 +829,12 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       _selectEndTime(context);
     }
   }
+
   Future<void> _selectEndTime(BuildContext context) async {
     TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: endTime ?? TimeOfDay.now(),
-      helpText:"Select end time.",
+      helpText: "Select end time.",
     );
     if (picked != null) {
       setState(() {
@@ -880,6 +842,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       });
     }
   }
+
   Future<void> _attachFile(String filePath) async {
     setState(() {
       attachedFiles.add(filePath);
@@ -892,6 +855,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       }
     });
   }
+
   void _removeAttachedFile(String filePath) {
     setState(() {
       attachedFiles.remove(filePath);
@@ -904,6 +868,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       }
     });
   }
+
   Future<void> _pickImageFromCamera() async {
     setState(() {
       _isLoading = true; // Start loading
@@ -916,6 +881,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       _isLoading = false; // Stop loading
     });
   }
+
   Future<void> _pickImageFromGallery() async {
     setState(() {
       _isLoading = true; // Start loading
@@ -928,6 +894,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       _isLoading = false; // Stop loading
     });
   }
+
   Future<void> _attachDocument() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -946,6 +913,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     }
   }
 }
+
 class ForceNewlineForInsertsAroundInlineImageRule extends InsertRule {
   @override
   Delta? apply(Delta document, int index, Object data) {
@@ -954,12 +922,11 @@ class ForceNewlineForInsertsAroundInlineImageRule extends InsertRule {
     final previous = iter.skip(index);
     final target = iter.next();
     final cursorBeforeInlineEmbed = _isInlineImage(target.data);
-    final cursorAfterInlineEmbed = previous != null &&
-        _isInlineImage(previous.data);
+    final cursorAfterInlineEmbed =
+        previous != null && _isInlineImage(previous.data);
 
     if (cursorBeforeInlineEmbed || cursorAfterInlineEmbed) {
-      final delta = Delta()
-        ..retain(index);
+      final delta = Delta()..retain(index);
       if (cursorAfterInlineEmbed && !data.startsWith('\n')) delta.insert('\n');
       delta.insert(data);
       if (cursorBeforeInlineEmbed && !data.endsWith('\n')) delta.insert('\n');
@@ -967,6 +934,7 @@ class ForceNewlineForInsertsAroundInlineImageRule extends InsertRule {
     }
     return null;
   }
+
   bool _isInlineImage(Object data) {
     if (data is EmbeddableObject) return data.type == 'image' && data.inline;
     if (data is Map) {
