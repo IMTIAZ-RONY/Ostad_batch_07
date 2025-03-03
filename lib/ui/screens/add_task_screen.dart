@@ -900,15 +900,12 @@ class ForceNewlineForInsertsAroundInlineImageRule extends InsertRule {
     return false;
   }
 }*/
-
-
 import 'dart:convert';
 import 'dart:io';
 import 'package:fleather/fleather.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:ostad_batch_07/ui/const/constants.dart';
 import 'package:ostad_batch_07/ui/const/strings.dart';
 import 'package:ostad_batch_07/ui/const/text_styles.dart';
